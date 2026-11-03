@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>가짜 정보 탐정단: 가짜 정보를 찾아라!</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg0:#070D1A; --bg1:#0B1426;
+  --panel:rgba(15,27,50,.76); --panel-solid:#0F1B32; --panel-hi:rgba(24,42,76,.86);
+  --line:rgba(96,150,255,.22); --line-strong:rgba(96,150,255,.5);
+  --blue:#2F7BFF; --blue-hi:#5B9BFF; --cyan:#22D3EE;
+  --orange:#FF8A3D; --red:#FF4D5E; --ok:#34E0A1; --gold:#FFD166;
+  --text:#F2F6FF; --muted:#A3B3CE;
+  --shadow:0 12px 32px rgba(0,0,0,.42);
+  --mono:"IBM Plex Mono","Consolas","Menlo",monospace;
+  --sans:"Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo",sans-serif;
+  color-scheme: dark;
+}
+*{box-sizing:border-box}
+:root{ box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px); }
+html{ scroll-padding-top:env(safe-area-inset-top,0px); }
+[hidden]{display:none!important}
+body{margin:0;min-height:100vh;color:var(--text);background:var(--bg0);font-family:var(--sans);font-size:18px;line-height:1.65;word-break:keep-all;overflow-wrap:break-word;position:relative}
+.bg{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(900px 520px at 12% -8%, rgba(47,123,255,.22), transparent 62%),radial-gradient(720px 520px at 100% 8%, rgba(34,211,238,.11), transparent 60%),linear-gradient(180deg,var(--bg1),var(--bg0))}
+.bg::before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(96,150,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(96,150,255,.07) 1px,transparent 1px);background-size:44px 44px;
+  -webkit-mask-image:radial-gradient(ellipse at 50% 20%,#000 20%,transparent 78%);mask-image:radial-gradient(ellipse at 50% 20%,#000 20%,transparent 78%)}
+.bg svg{position:absolute;inset:0;width:100%;height:100%;opacity:.75;-webkit-mask-image:radial-gradient(ellipse at 80% 90%,#000 0%,transparent 65%);mask-image:radial-gradient(ellipse at 80% 90%,#000 0%,transparent 65%)}
+.wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:18px 18px 56px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--cyan);outline-offset:3px}
+.ic{width:1.15em;height:1.15em;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* 상단 바 */
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0 16px;margin-bottom:6px;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:42px;height:42px;display:grid;place-items:center;border:1px solid var(--line-strong);border-radius:8px;background:linear-gradient(160deg,rgba(47,123,255,.35),rgba(34,211,238,.12));color:var(--cyan);box-shadow:0 0 18px rgba(47,123,255,.35)}
+.logo .ic{width:24px;height:24px}
+.brand b{display:block;font-weight:900;font-size:19px;line-height:1.2}
+.brand span{display:block;font-size:12px;color:var(--cyan);line-height:1.3;font-family:var(--mono);letter-spacing:.08em}
+.top-r{display:flex;align-items:center;gap:14px}
+.live{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);font-family:var(--mono)}
+.live i{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 10px var(--ok)}
+.logbtn{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:6px 14px;border:1px solid var(--line-strong);border-radius:6px;background:rgba(24,42,76,.7);font-weight:700;font-size:15px;transition:transform .18s,border-color .18s,background .18s}
+.logbtn:hover{transform:translateY(-2px);border-color:var(--cyan);background:var(--panel-hi)}
+.logbtn .cnt{font-family:var(--mono);font-size:13px;min-width:24px;text-align:center;border-radius:4px;background:rgba(34,211,238,.16);color:var(--cyan);padding:0 6px}
+
+/* 패널·버튼 */
+.panel{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,.05);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);padding:20px 22px}
+.panel.ok{border-color:rgba(52,224,161,.55);background:linear-gradient(180deg,rgba(52,224,161,.10),var(--panel))}
+.panel.warn{border-color:rgba(255,138,61,.55);background:linear-gradient(180deg,rgba(255,138,61,.10),var(--panel))}
+.h-label{display:flex;align-items:center;gap:8px;font-weight:700;font-size:15px;color:var(--cyan);margin-bottom:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:60px;padding:12px 30px;border-radius:6px;border:1px solid var(--blue-hi);background:linear-gradient(180deg,#3A86FF,#2160E6);color:#fff;font-weight:700;font-size:20px;box-shadow:0 8px 22px rgba(47,123,255,.35);transition:transform .18s,box-shadow .18s,filter .18s,opacity .18s}
+.btn:hover:not([disabled]){transform:translateY(-2px);box-shadow:0 12px 28px rgba(47,123,255,.5);filter:brightness(1.08)}
+.btn:active:not([disabled]){transform:translateY(0)}
+.btn.big{font-size:22px;padding:16px 40px;min-height:66px}
+.btn.ghost{background:rgba(24,42,76,.8);border-color:var(--line-strong);box-shadow:none}
+.btn[disabled]{cursor:not-allowed;opacity:.45;box-shadow:none}
+.screen{animation:none}
+.screen.enter{animation:screenIn .5s cubic-bezier(.2,.8,.2,1) both}
+@keyframes screenIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.phase-in{animation:phaseIn .45s cubic-bezier(.2,.8,.2,1) both}
+@keyframes phaseIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+/* 시작 */
+.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:30px;align-items:center;padding:26px 0 8px}
+.tagline{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line-strong);background:rgba(47,123,255,.12);color:var(--cyan);border-radius:4px;padding:3px 12px;font-size:14px;font-weight:700}
+.hero h1{font-weight:900;font-size:clamp(40px,6.4vw,70px);line-height:1.1;letter-spacing:-.02em;margin:16px 0 8px}
+.hero h1 span{display:block;background:linear-gradient(90deg,#fff,#9CC4FF);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero .sub{font-size:clamp(18px,2.6vw,24px);color:var(--muted);margin:0 0 22px;font-weight:500}
+.namebox{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:0 0 16px}
+.namebox label{display:flex;align-items:center;gap:8px;font-weight:700;color:var(--muted)}
+.namebox input{font:inherit;font-size:20px;padding:12px 16px;min-height:56px;min-width:240px;flex:1;max-width:340px;border:1px solid var(--line-strong);border-radius:6px;background:rgba(7,13,26,.7);color:var(--text);transition:border-color .2s,box-shadow .2s}
+.namebox input::placeholder{color:#6F82A3}
+.namebox input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(34,211,238,.18)}
+.startbtns{display:flex;gap:12px;flex-wrap:wrap}
+.resume{margin:0 0 16px;padding:16px 18px;border-color:rgba(34,211,238,.45)}
+.resume b{font-size:17px}
+.resume small{display:block;color:var(--muted);font-size:14px;margin-bottom:10px}
+.best{font-size:14px;color:var(--muted);margin-top:12px;display:flex;align-items:center;gap:8px}
+.best .ic{color:var(--gold)}
+.dossier{position:relative;overflow:hidden;padding:22px}
+.dossier .fp{position:absolute;right:-60px;top:-50px;width:340px;height:340px;color:var(--blue);opacity:.22;stroke-width:.35}
+.dossier .row{position:relative;display:flex;align-items:center;gap:14px;padding:14px 0;border-top:1px solid var(--line)}
+.dossier .row:first-of-type{border-top:0}
+.dossier .row .ic{width:30px;height:30px;color:var(--blue-hi)}
+.dossier .row b{display:block;font-size:17px}
+.dossier .row small{display:block;font-size:14px;color:var(--muted)}
+.dossier .row .chip{margin-left:auto}
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:4px;border:1px solid var(--line-strong);padding:2px 10px;font-size:14px;font-weight:700;background:rgba(47,123,255,.12);color:var(--blue-hi);white-space:nowrap}
+.chip.warn{border-color:rgba(255,138,61,.6);background:rgba(255,138,61,.12);color:var(--orange)}
+.chip.ok{border-color:rgba(52,224,161,.6);background:rgba(52,224,161,.12);color:var(--ok)}
+.chip.miss{border-style:dashed;border-color:var(--cyan);background:rgba(34,211,238,.06);color:var(--cyan)}
+.brief{display:grid;grid-template-columns:1.2fr .8fr;gap:16px;margin-top:26px}
+.proc{display:grid;gap:0;margin:0;padding:0;list-style:none}
+.proc li{display:grid;grid-template-columns:36px 1fr;gap:14px;padding:10px 0;border-top:1px solid var(--line)}
+.proc li:first-child{border-top:0}
+.proc .n{display:grid;place-items:center;width:36px;height:36px;border-radius:6px;border:1px solid var(--line-strong);background:rgba(47,123,255,.14);color:var(--blue-hi);font-family:var(--mono);font-weight:600}
+.proc b{display:block;font-size:18px;line-height:1.35}
+.proc small{display:block;color:var(--muted);font-size:15px;line-height:1.45}
+.proc li.key .n{border-color:var(--cyan);color:var(--cyan);background:rgba(34,211,238,.14)}
+.goal .eb{font-family:var(--mono);font-size:13px;letter-spacing:.1em;color:var(--gold);font-weight:600}
+.goal h3{font-size:22px;font-weight:900;line-height:1.35;margin:6px 0}
+.goal p{color:var(--muted);font-size:15px;margin:0 0 14px}
+.ladder{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.ladder li{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:700;padding:8px 12px;border:1px solid var(--line);border-radius:6px;background:rgba(7,13,26,.45)}
+.ladder li .ic{color:var(--cyan)}
+.ladder li:last-child{border-color:rgba(255,209,102,.55);color:var(--gold)}
+.ladder li:last-child .ic{color:var(--gold)}
+.ladder small{margin-left:auto;font-family:var(--mono);font-weight:500;color:var(--muted)}
+
+/* 게임: KPI */
+.kpis{display:grid;grid-template-columns:1.6fr 1fr 1fr 1.2fr;gap:14px;margin-bottom:16px}
+.kpi{padding:14px 18px}
+.kpi .k{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted);font-weight:700}
+.kpi .v{font-family:var(--mono);font-weight:600;font-size:30px;line-height:1.3}
+.kpi .v:empty::before{content:"—";color:#5C6F90}
+#comboV{font-size:21px;color:var(--orange);font-family:var(--sans);font-weight:700;line-height:1.9}
+.stage{display:flex;align-items:center;gap:14px}
+#stageLabel{font-family:var(--mono);font-weight:600;font-size:24px;white-space:nowrap}
+.bar{flex:1;height:10px;border-radius:2px;background:rgba(96,150,255,.14);border:1px solid var(--line);overflow:hidden;min-width:100px}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--cyan));box-shadow:0 0 12px rgba(34,211,238,.6);transition:width .5s}
+.rankv{display:flex;align-items:center;gap:10px;font-weight:900;font-size:19px;line-height:1.9;white-space:nowrap}
+.rankv .ic{color:var(--gold);width:22px;height:22px}
+.pips{display:flex;gap:4px;margin-top:-2px}
+.pips i{flex:1;height:5px;border-radius:2px;background:rgba(96,150,255,.2)}
+.pips i.on{background:var(--gold);box-shadow:0 0 8px rgba(255,209,102,.6)}
+.kpi.rankup{animation:rankup 1.2s ease-out}
+@keyframes rankup{0%{box-shadow:0 0 0 0 rgba(255,209,102,0)}30%{box-shadow:0 0 0 3px rgba(255,209,102,.7),0 0 34px rgba(255,209,102,.5)}100%{box-shadow:var(--shadow)}}
+
+/* 단계 표시 */
+.stepper{display:grid;grid-template-columns:repeat(5,1fr);margin:0 0 16px;padding:14px 10px}
+.st{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;font-size:14px;color:var(--muted);font-weight:700;line-height:1.3}
+.st .dot{position:relative;z-index:1;width:40px;height:40px;border-radius:6px;display:grid;place-items:center;border:1px solid var(--line);background:rgba(7,13,26,.7);transition:all .35s}
+.st .dot .ic{width:20px;height:20px}
+.st:not(:last-child)::after{content:"";position:absolute;top:20px;left:calc(50% + 26px);right:calc(-50% + 26px);height:1px;background:var(--line);transition:background .35s}
+.st.done .dot{border-color:var(--cyan);color:var(--cyan)}
+.st.done:not(:last-child)::after{background:var(--cyan)}
+.st.active{color:var(--text)}
+.st.active .dot{border-color:var(--blue-hi);background:rgba(47,123,255,.3);color:#fff;box-shadow:0 0 20px rgba(47,123,255,.65)}
+.st.skip .dot{opacity:.35;border-style:dashed}
+.st .lb i{font-style:normal;font-family:var(--mono);color:var(--cyan);margin-right:4px}
+
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:18px;align-items:start}
+.side{display:grid;gap:16px}
+.side .panel{padding:18px}
+.crit{display:grid;gap:12px;margin:0;padding:0;list-style:none}
+.crit li{display:flex;gap:12px;align-items:flex-start;font-size:15px;color:var(--muted);line-height:1.5}
+.crit li b{display:block;color:var(--text);font-size:16px}
+.crit .ic{width:22px;height:22px;color:var(--cyan);margin-top:2px}
+.tip{font-size:14px;color:var(--muted);line-height:1.55}
+.tip b{color:var(--gold)}
+main{perspective:1400px}
+
+/* 사건 접수 */
+.intake{padding:28px 26px 30px;transform-origin:top center}
+.intake::before{content:"";position:absolute;top:-15px;left:26px;width:140px;height:15px;background:var(--panel-hi);border:1px solid var(--line);border-bottom:0;border-radius:6px 6px 0 0}
+.intake .no{font-family:var(--mono);font-weight:600;color:var(--cyan);display:flex;align-items:center;gap:10px;font-size:15px}
+.intake h2{font-size:clamp(26px,4.4vw,38px);font-weight:900;line-height:1.25;margin:8px 0 12px}
+.intake .scene{font-size:20px;color:#DCE6F7;margin:0 0 14px}
+.intake .goalrow{display:flex;gap:10px;flex-wrap:wrap;align-items:center;color:var(--muted);font-size:15px;margin-bottom:6px}
+.redact{display:grid;gap:9px;margin:18px 0 22px}
+.redact i{display:block;height:12px;border-radius:2px;background:linear-gradient(90deg,rgba(160,180,215,.22),rgba(160,180,215,.1))}
+.redact i:nth-child(1){width:92%}.redact i:nth-child(2){width:78%}.redact i:nth-child(3){width:55%}
+.intake.opening{animation:fileClose .55s ease-in forwards}
+@keyframes fileClose{to{transform:rotateX(-82deg) translateY(-14px);opacity:0}}
+.fileopen{transform-origin:top center;animation:fileOpen .75s cubic-bezier(.2,.8,.2,1) both}
+@keyframes fileOpen{from{transform:rotateX(-78deg);opacity:0;filter:brightness(2)}to{transform:none;opacity:1;filter:none}}
+
+/* 수사 파일 */
+.case{padding:0;overflow:hidden}
+.case::before,.case::after{content:"";position:absolute;width:18px;height:18px;border:2px solid var(--cyan);pointer-events:none;z-index:2}
+.case::before{top:8px;left:8px;border-right:0;border-bottom:0}
+.case::after{bottom:8px;right:8px;border-left:0;border-top:0}
+.case-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 22px;border-bottom:1px solid var(--line);background:rgba(7,13,26,.45)}
+.case-no{font-family:var(--mono);font-weight:600;font-size:15px;color:var(--cyan);display:flex;align-items:center;gap:8px}
+.case-head .st-chip{margin-left:auto}
+.case-main{padding:18px 22px 24px}
+.case-title{font-size:15px;font-weight:700;color:var(--muted);margin:0 0 10px}
+.case .src{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:16px;margin:0 0 12px;flex-wrap:wrap}
+.case .body{font-size:clamp(21px,3.2vw,27px);line-height:2;font-weight:500}
+.scanline{position:absolute;left:0;right:0;top:0;height:70px;pointer-events:none;opacity:0;background:linear-gradient(180deg,transparent,rgba(34,211,238,.2),transparent);z-index:1}
+.case.scan .scanline{animation:scan 1s ease-out}
+@keyframes scan{0%{transform:translateY(-70px);opacity:1}100%{transform:translateY(560px);opacity:0}}
+.case.flash-ok{animation:flashOk .9s ease-out}
+@keyframes flashOk{0%{box-shadow:var(--shadow)}30%{box-shadow:0 0 0 3px var(--ok),0 0 40px rgba(52,224,161,.45)}100%{box-shadow:var(--shadow)}}
+.case.flash-bad{animation:flashBad .7s ease-out}
+@keyframes flashBad{0%,100%{transform:none;box-shadow:var(--shadow)}15%{transform:translateX(-8px);box-shadow:0 0 0 3px var(--red),0 0 40px rgba(255,77,94,.45)}30%{transform:translateX(8px)}45%{transform:translateX(-6px)}60%{transform:translateX(6px)}75%{transform:translateX(-3px)}}
+
+/* 선택 가능한 증거 문구 */
+.ck{position:relative;display:inline;font:inherit;color:inherit;text-align:inherit;background:none;border:0;padding:2px 5px;margin:0 -1px;border-radius:4px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+button.ck{cursor:pointer;border-bottom:2px dashed rgba(34,211,238,.45);transition:background .2s,box-shadow .2s}
+button.ck:hover{background:rgba(34,211,238,.12)}
+button.ck[aria-pressed="true"]{background:rgba(34,211,238,.24);box-shadow:0 0 0 1.5px var(--cyan),0 0 16px rgba(34,211,238,.4);border-bottom-color:transparent}
+button.ck.pulse{background-image:linear-gradient(90deg,transparent 0,rgba(34,211,238,.85) 50%,transparent 100%);background-size:60% 100%;background-repeat:no-repeat;animation:sweepbg .65s ease-out}
+@keyframes sweepbg{from{background-position:-70% 0}to{background-position:170% 0}}
+button.ck.deny{animation:deny .4s}
+@keyframes deny{0%,100%{transform:none}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.ck.hit{background:rgba(52,224,161,.22);box-shadow:inset 0 -2px 0 var(--ok);animation:ckIn .55s calc(var(--i,0)*.16s) both}
+.ck.wrong{background:rgba(255,138,61,.2);box-shadow:inset 0 -2px 0 var(--orange);text-decoration:line-through;text-decoration-color:rgba(255,138,61,.8);animation:ckIn .55s calc(var(--i,0)*.16s) both}
+.ck.missed{outline:1.5px dashed var(--cyan);outline-offset:1px;background:rgba(34,211,238,.07);animation:ckIn .55s calc(var(--i,0)*.16s) both}
+.ck.show-bad{background:rgba(255,138,61,.22);text-decoration:underline wavy var(--orange);text-underline-offset:6px}
+.ck.show-good{background:rgba(52,224,161,.18);text-decoration:underline var(--ok) 3px;text-underline-offset:6px}
+@keyframes ckIn{0%{opacity:.2;filter:brightness(2.2)}100%{opacity:1;filter:none}}
+
+/* 판별 버튼 */
+.ask{display:flex;align-items:center;justify-content:center;gap:10px;margin:26px 0 12px;font-size:22px;font-weight:700;text-align:center}
+.ask .ic{color:var(--cyan)}
+.verdicts{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.verdicts .btn{justify-content:flex-start;gap:16px;min-height:88px;padding:16px 22px;border-radius:8px;text-align:left;font-size:clamp(19px,2.6vw,24px);background:var(--panel);box-shadow:var(--shadow);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.verdicts .btn .sym{display:grid;place-items:center;flex:none;width:52px;height:52px;border-radius:6px;border:1px solid currentColor;font-size:30px;font-weight:900;line-height:1}
+.verdicts .btn.yes{border-color:rgba(52,224,161,.5)}
+.verdicts .btn.yes .sym{color:var(--ok);background:rgba(52,224,161,.1)}
+.verdicts .btn.no{border-color:rgba(255,138,61,.5)}
+.verdicts .btn.no .sym{color:var(--orange);background:rgba(255,138,61,.1)}
+.verdicts .btn.yes:hover:not([disabled]){box-shadow:0 0 0 1px var(--ok),0 12px 30px rgba(52,224,161,.22);background:rgba(52,224,161,.08)}
+.verdicts .btn.no:hover:not([disabled]){box-shadow:0 0 0 1px var(--orange),0 12px 30px rgba(255,138,61,.22);background:rgba(255,138,61,.08)}
+.verdicts .btn[disabled]{opacity:.45;transform:none}
+.verdicts .btn.right{opacity:1;background:rgba(52,224,161,.16);border-color:var(--ok);box-shadow:0 0 0 1px var(--ok),0 0 24px rgba(52,224,161,.3)}
+.verdicts .btn.miss{opacity:1;background:rgba(255,77,94,.16);border-color:var(--red);box-shadow:0 0 0 1px var(--red),0 0 24px rgba(255,77,94,.3)}
+.vfb{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:14px;font-weight:700;font-size:18px;min-height:30px}
+.vfb.ok{color:var(--ok)}.vfb.bad{color:var(--red)}
+
+/* 증거 수집 */
+.ev-banner{margin-top:18px}
+.ev-banner p{margin:0 0 12px;color:#DCE6F7}
+.rule{margin:0 0 14px;padding:12px 14px;border:1px solid var(--line);border-radius:6px;background:rgba(7,13,26,.45)}
+.rule b{display:block;font-size:15px;color:var(--cyan);margin-bottom:6px}
+.rule ul{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:6px 16px;margin:0;padding:0;list-style:none}
+.rule li{display:flex;align-items:center;gap:8px;font-size:15px;color:#DCE6F7}
+.rule li .ic{color:var(--cyan)}
+.rule small{display:block;margin-top:8px;color:var(--gold);font-size:14px;font-weight:700}
+.ev-meter{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.slots{display:flex;gap:8px}
+.slot{width:34px;height:34px;border-radius:6px;border:1px dashed var(--line-strong);display:grid;place-items:center;color:var(--cyan);transition:all .25s}
+.slot.on{border-style:solid;background:rgba(34,211,238,.2);box-shadow:0 0 14px rgba(34,211,238,.45)}
+.slot .ic{opacity:0;transition:opacity .2s}.slot.on .ic{opacity:1}
+.ev-count{font-family:var(--mono);font-weight:600;font-size:18px}
+.ev-meter .btn{margin-left:auto;min-height:56px;font-size:19px;padding:10px 26px}
+.tray{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 0}
+.tray .chip{animation:chipIn .5s calc(var(--i,0)*.14s) both}
+@keyframes chipIn{from{opacity:0;transform:translateY(-10px) scale(.9)}to{opacity:1;transform:none}}
+.ev-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:14px;color:var(--muted);margin-top:12px}
+.ev-legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:14px;height:14px;border-radius:3px;display:inline-block}
+.sw.h{background:rgba(52,224,161,.5);box-shadow:inset 0 -2px 0 var(--ok)}.sw.w{background:rgba(255,138,61,.45);box-shadow:inset 0 -2px 0 var(--orange)}.sw.m{border:1.5px dashed var(--cyan)}
+
+/* 근거 분석 */
+.lens{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:0 0 14px}
+.lens span{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:4px;background:rgba(7,13,26,.5);padding:2px 10px;font-size:14px;color:var(--muted);font-weight:700}
+.lens .ic{color:var(--cyan);width:16px;height:16px}
+.reasons{display:grid;gap:12px}
+.reason{display:flex;align-items:center;gap:14px;width:100%;text-align:left;min-height:68px;padding:14px 18px;border-radius:8px;background:var(--panel);border:1px solid var(--line);font-size:19px;font-weight:500;box-shadow:var(--shadow);transition:transform .18s,border-color .18s,background .18s}
+.reason .idx{display:grid;place-items:center;flex:none;width:34px;height:34px;border-radius:4px;border:1px solid var(--line-strong);font-family:var(--mono);font-weight:600;font-size:16px;color:var(--cyan)}
+.reason:hover:not([disabled]){transform:translateX(4px);border-color:var(--cyan);background:var(--panel-hi)}
+.reason[disabled]{cursor:default}
+.reason.right{background:rgba(52,224,161,.16);border-color:var(--ok);box-shadow:0 0 0 1px var(--ok)}
+.reason.right .idx{color:var(--ok);border-color:var(--ok)}
+.reason.miss{background:rgba(255,77,94,.16);border-color:var(--red);box-shadow:0 0 0 1px var(--red);animation:deny .4s}
+.reason.miss .idx{color:var(--red);border-color:var(--red)}
+
+/* 사건 해결 */
+.res{margin-top:20px;overflow:hidden}
+.res-top{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+.stampwrap{position:relative;flex:none;width:132px;height:132px}
+.stamp{width:132px;height:132px;border:3px double var(--ok);color:var(--ok);border-radius:8px;display:grid;place-items:center;text-align:center;font-weight:900;font-size:21px;line-height:1.3;transform:rotate(-8deg);background:rgba(52,224,161,.08);animation:stampIn .65s cubic-bezier(.2,1.3,.4,1) both}
+.stamp small{display:block;font-family:var(--mono);font-weight:600;font-size:11px;letter-spacing:.14em;margin-top:2px}
+.stamp.bad{border-color:var(--orange);color:var(--orange);background:rgba(255,138,61,.08)}
+@keyframes stampIn{0%{transform:scale(2.4) rotate(-20deg);opacity:0}70%{transform:scale(.93) rotate(-8deg);opacity:1}100%{transform:scale(1) rotate(-8deg)}}
+.res-info{flex:1;min-width:240px}
+.res-info h3{font-size:clamp(22px,3.4vw,28px);font-weight:900;line-height:1.35;margin:2px 0 4px}
+.verdict-line{font-weight:700;color:#DCE6F7}
+.stars{display:flex;gap:6px;margin:8px 0 4px}
+.star{width:36px;height:36px;color:#43547A}
+.star .ic{width:100%;height:100%}
+.star.on{color:var(--gold);filter:drop-shadow(0 0 8px rgba(255,209,102,.6));animation:starPop .55s calc(.55s + var(--i)*.28s) both}
+.star.on .ic{fill:currentColor}
+@keyframes starPop{0%{transform:scale(0) rotate(-50deg);opacity:0}70%{transform:scale(1.25) rotate(8deg);opacity:1}100%{transform:none}}
+.evalt{margin:0;color:var(--muted);font-size:16px}
+.bd{border:1px solid var(--line);border-radius:6px;overflow:hidden;margin:18px 0}
+.bd>div{display:flex;justify-content:space-between;gap:10px;padding:10px 14px;border-top:1px solid var(--line);font-size:16px}
+.bd>div:first-child{border-top:0}
+.bd .pts{font-family:var(--mono);font-weight:600;color:var(--cyan);white-space:nowrap}
+.bd .pts.zero{color:var(--muted)}
+.bd .tot{background:rgba(47,123,255,.16);font-weight:900;font-size:19px}
+.bd .tot .pts{color:#fff;font-size:22px}
+.accnote{font-size:14px;color:var(--muted);margin:-6px 0 14px;display:flex;gap:8px;align-items:flex-start}
+.accnote .ic{color:var(--gold);margin-top:3px}
+.sec-t{display:flex;align-items:center;gap:8px;font-weight:900;font-size:18px;margin:18px 0 10px}
+.sec-t .ic{color:var(--cyan)}
+.evl{display:grid;gap:10px}
+.evi{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;padding:12px 14px;border:1px solid var(--line);border-radius:6px;background:rgba(7,13,26,.45)}
+.evi b{display:block;font-size:17px;line-height:1.5}
+.evi small{display:block;color:var(--muted);font-size:15px;line-height:1.5}
+.why{padding:14px 16px;border:1px solid var(--line);border-radius:6px;background:rgba(7,13,26,.45)}
+.why p{margin:0 0 8px}.why p:last-child{margin:0}
+.why .rr{display:flex;gap:10px;align-items:flex-start;font-weight:700}
+.why .rr .ic{color:var(--ok);margin-top:5px}
+.tags{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 0}
+.tag{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line-strong);background:rgba(47,123,255,.14);color:var(--blue-hi);border-radius:4px;padding:1px 10px;font-size:14px;font-weight:700}
+.actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:18px}
+.spark{position:absolute;left:50%;top:50%;width:4px;height:20px;border-radius:2px;background:linear-gradient(var(--cyan),transparent);opacity:0;animation:spark 1.05s ease-out forwards;pointer-events:none}
+@keyframes spark{0%{opacity:1;transform:translate(-50%,-50%) rotate(var(--a)) translateY(30px)}100%{opacity:0;transform:translate(-50%,-50%) rotate(var(--a)) translateY(var(--d))}}
+.res.clear::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.14) 50%,transparent 65%);transform:translateX(-120%);animation:shine 1.4s .3s ease-out forwards}
+@keyframes shine{to{transform:translateX(120%)}}
+
+/* 알림 */
+.toasts{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));right:12px;z-index:60;display:grid;gap:10px;width:min(340px,calc(100vw - 24px));pointer-events:none}
+.toast{display:flex;gap:12px;align-items:center;padding:12px 14px;border-radius:8px;border:1px solid var(--line-strong);background:rgba(10,20,40,.96);box-shadow:var(--shadow);animation:toastIn .4s cubic-bezier(.2,.9,.3,1) both}
+.toast.out{animation:toastOut .35s ease-in forwards}
+.toast .ti{display:grid;place-items:center;width:38px;height:38px;border-radius:6px;border:1px solid currentColor;flex:none}
+.toast b{display:block;font-size:16px;line-height:1.3}.toast small{display:block;color:var(--muted);font-size:14px;line-height:1.35}
+.toast.ok{border-color:rgba(52,224,161,.6)}.toast.ok .ti{color:var(--ok)}
+.toast.warn{border-color:rgba(255,138,61,.6)}.toast.warn .ti{color:var(--orange)}
+.toast.rank{border-color:rgba(255,209,102,.7)}.toast.rank .ti{color:var(--gold)}
+.toast.info .ti{color:var(--cyan)}
+@keyframes toastIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:none}}
+@keyframes toastOut{to{opacity:0;transform:translateX(40px)}}
+
+/* 수사 기록장 */
+.scrim{position:fixed;inset:0;z-index:70;background:rgba(3,8,18,.62);opacity:0;pointer-events:none;transition:opacity .3s}
+.scrim.open{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;z-index:71;width:min(470px,100vw);background:var(--panel-solid);border-left:1px solid var(--line-strong);box-shadow:-20px 0 50px rgba(0,0,0,.5);transform:translateX(105%);transition:transform .38s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px)}
+.drawer.open{transform:none}
+.dr-head{display:flex;align-items:center;gap:12px;padding:16px 18px;border-bottom:1px solid var(--line)}
+.dr-head h2{margin:0;font-size:20px;font-weight:900;display:flex;align-items:center;gap:10px}
+.dr-head h2 .ic{color:var(--cyan)}
+.dr-head .x{margin-left:auto;width:44px;height:44px;border-radius:6px;border:1px solid var(--line-strong);background:rgba(24,42,76,.7);display:grid;place-items:center}
+.dr-sum{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px 18px;border-bottom:1px solid var(--line)}
+.dr-sum div{border:1px solid var(--line);border-radius:6px;padding:8px 10px;background:rgba(7,13,26,.45)}
+.dr-sum small{display:block;color:var(--muted);font-size:13px}
+.dr-sum b{font-family:var(--mono);font-size:22px}
+.dr-body{flex:1;overflow:auto;padding:14px 18px 28px;display:grid;gap:12px;align-content:start}
+.dr-empty{color:var(--muted);text-align:center;padding:40px 10px}
+.entry{border:1px solid var(--line);border-radius:8px;background:rgba(15,27,50,.7);padding:14px}
+.entry-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.entry-h .cn{font-family:var(--mono);font-size:13px;color:var(--cyan);font-weight:600}
+.entry h4{margin:4px 0 6px;font-size:17px;font-weight:900}
+.mini-stars{display:inline-flex;gap:2px;margin-left:auto;color:#43547A}
+.mini-stars .on{color:var(--gold)}
+.mini-stars .ic{width:18px;height:18px}.mini-stars .on .ic{fill:currentColor}
+.entry .grp{margin-top:8px;font-size:13px;color:var(--muted);font-weight:700}
+.entry .tray{margin-top:4px}
+.entry .tray .chip{animation:none;white-space:normal;font-weight:500}
+
+/* 결과 */
+.report{display:grid;grid-template-columns:260px 1fr;gap:18px;align-items:stretch}
+.badgebox{display:grid;place-items:center;text-align:center;padding:26px 18px;overflow:hidden}
+.badge{position:relative;width:132px;height:132px;display:grid;place-items:center;color:var(--gold);margin:0 auto 8px}
+.badge .hex{position:absolute;inset:0;width:100%;height:100%;fill:rgba(47,123,255,.14);stroke:var(--blue-hi);stroke-width:2;filter:drop-shadow(0 0 14px rgba(47,123,255,.55))}
+.badge .ic{position:relative;width:56px;height:56px}
+.badge.pop{animation:badgePop .9s cubic-bezier(.2,1.3,.4,1) both}
+@keyframes badgePop{from{transform:scale(.3) rotate(-30deg);opacity:0}to{transform:none;opacity:1}}
+.rank{font-weight:900;font-size:clamp(24px,3.4vw,30px);line-height:1.3}
+.who{color:var(--muted);font-size:16px;margin-top:4px}
+.score{font-family:var(--mono);font-weight:600;font-size:clamp(52px,9vw,88px);line-height:1.05;color:#fff;text-shadow:0 0 28px rgba(47,123,255,.55)}
+.score small{font-size:.28em;color:var(--muted);text-shadow:none;margin-left:8px}
+.scorebox{padding:26px 28px}
+.sum{display:flex;align-items:center;gap:12px;margin-top:14px;padding:14px 16px;border-radius:6px;border:1px solid rgba(52,224,161,.4);background:rgba(52,224,161,.08)}
+.sum .ic{color:var(--ok);width:26px;height:26px}
+.sum.warn{border-color:rgba(255,138,61,.5);background:rgba(255,138,61,.08)}
+.sum.warn .ic{color:var(--orange)}
+.casegrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px;margin:18px 0}
+.cg{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1px solid var(--line);border-radius:6px;background:rgba(15,27,50,.7);font-size:15px}
+.cg .cn{font-family:var(--mono);font-size:13px;color:var(--cyan);white-space:nowrap}
+.cg .mini-stars{margin-left:auto}
+.review{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:18px 0}
+.review .panel{padding:16px 18px;font-size:16px;color:var(--muted);transition:transform .2s,border-color .2s}
+.review .panel:hover{transform:translateY(-3px);border-color:var(--line-strong)}
+.review b{display:flex;align-items:center;gap:10px;color:var(--text);font-size:18px;margin-bottom:4px}
+.review b .ic{color:var(--cyan);width:24px;height:24px}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:10px}
+.steps div{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border:1px solid var(--line);border-radius:6px;background:rgba(7,13,26,.45);font-size:16px}
+.steps .n{flex:none;display:grid;place-items:center;width:30px;height:30px;border-radius:4px;background:rgba(255,138,61,.14);border:1px solid rgba(255,138,61,.6);color:var(--orange);font-family:var(--mono);font-weight:600}
+.note{font-size:14px;color:var(--muted);text-align:center;margin-top:26px}
+
+@media (max-width:900px){
+  .hero,.brief{grid-template-columns:1fr}
+  .layout{grid-template-columns:1fr}
+  .report{grid-template-columns:1fr}
+  .kpis{grid-template-columns:repeat(3,1fr)}.kpis .kpi:first-child{grid-column:1 / -1}
+}
+@media (max-width:640px){
+  body{font-size:17px}
+  .verdicts{grid-template-columns:1fr}
+  .panel{padding:16px}.case-main{padding:14px 16px}.case-head{padding:12px 16px}.intake{padding:22px 18px 24px}
+  .live{display:none}
+  .st .lb{display:none}.st.active .lb{display:block;position:absolute;top:46px;white-space:nowrap}
+  .stepper{padding-bottom:36px}
+  .stampwrap,.stamp{width:108px;height:108px}.stamp{font-size:18px}
+  .ev-meter .btn{margin-left:0;width:100%}
+  .logbtn span.t{display:none}
+  .kpis{grid-template-columns:1fr 1fr}.kpis .kpi:last-child{grid-column:1 / -1}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.spark{display:none}}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.5-4.5"/></symbol>
+    <symbol id="i-fingerprint" viewBox="0 0 24 24"><path d="M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4"/><path d="M14 13.12c0 2.38 0 6.38-1 8.88"/><path d="M17.29 21.02c.12-.6.43-2.3.5-3.02"/><path d="M2 12a10 10 0 0 1 18-6"/><path d="M2 16h.01"/><path d="M21.8 16c.2-2 .131-5.354 0-6"/><path d="M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2"/><path d="M8.65 22c.21-.66.45-1.32.57-2"/><path d="M9 6.8a6 6 0 0 1 9 5.2v2"/></symbol>
+    <symbol id="i-shield-check" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.5-3.2 8.2-8 9-4.8-.8-8-4.5-8-9V6l8-3z"/><path d="M8.5 12l2.5 2.5 5-5"/></symbol>
+    <symbol id="i-shield-alert" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.5-3.2 8.2-8 9-4.8-.8-8-4.5-8-9V6l8-3z"/><path d="M12 8v5"/><path d="M12 16.5h.01"/></symbol>
+    <symbol id="i-shield-search" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.5-3.2 8.2-8 9-4.8-.8-8-4.5-8-9V6l8-3z"/><circle cx="11.5" cy="11" r="2.8"/><path d="M13.6 13.1l2.2 2.2"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></symbol>
+    <symbol id="i-news" viewBox="0 0 24 24"><path d="M4 5h13v14H6a2 2 0 0 1-2-2V5z"/><path d="M17 9h3v8a2 2 0 0 1-2 2"/><path d="M7 9h7M7 13h7M7 16h4"/></symbol>
+    <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M6 20v-7M12 20V5M18 20v-10M3 20h18"/></symbol>
+    <symbol id="i-pie" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9h-9z"/><path d="M15 3.4A9 9 0 0 1 20.6 9H15z"/></symbol>
+    <symbol id="i-megaphone" viewBox="0 0 24 24"><path d="M4 10v4a1 1 0 0 0 1 1h2l6 4V5L7 9H5a1 1 0 0 0-1 1z"/><path d="M17 9a4 4 0 0 1 0 6"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></symbol>
+    <symbol id="i-award" viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M8.2 13.5L7 22l5-3 5 3-1.2-8.5"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4"/><path d="M5 4h12l-2 4 2 4H5"/></symbol>
+    <symbol id="i-scan" viewBox="0 0 24 24"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><path d="M4 12h16"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3V4z"/><path d="M5 17a3 3 0 0 1 3-3h11"/><path d="M9 8h6"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></symbol>
+  </defs>
+</svg>
+
+<div class="bg" aria-hidden="true">
+  <svg xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <pattern id="circ" width="220" height="220" patternUnits="userSpaceOnUse">
+        <g fill="none" stroke="rgba(47,123,255,.22)" stroke-width="1"><path d="M0 44H64L86 66H150"/><path d="M220 124H160L138 102H96V170"/><path d="M44 220V160L66 138"/><path d="M150 0V30L172 52H220"/></g>
+        <g fill="rgba(34,211,238,.45)"><circle cx="150" cy="66" r="2.6"/><circle cx="96" cy="170" r="2.6"/><circle cx="66" cy="138" r="2.6"/><circle cx="220" cy="52" r="2.6"/></g>
+      </pattern>
+    </defs>
+    <rect width="100%" height="100%" fill="url(#circ)"/>
+  </svg>
+</div>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-label="수사 기록장" aria-hidden="true">
+  <div class="dr-head">
+    <h2><svg class="ic"><use href="#i-book"/></svg>수사 기록장</h2>
+    <button class="x" id="drClose" aria-label="수사 기록장 닫기"><svg class="ic"><use href="#i-x"/></svg></button>
+  </div>
+  <div class="dr-sum">
+    <div><small>해결한 사건</small><b id="drCases">0</b></div>
+    <div><small>확보한 증거</small><b id="drEv">0</b></div>
+    <div><small>획득한 별</small><b id="drStars">0</b></div>
+  </div>
+  <div class="dr-body" id="drBody"></div>
+</aside>
+
+<div class="wrap">
+
+<header class="topbar">
+  <div class="brand">
+    <div class="logo"><svg class="ic"><use href="#i-shield-search"/></svg></div>
+    <div><b>가짜 정보 탐정단</b><span>FACT DETECTIVE AGENCY</span></div>
+  </div>
+  <div class="top-r">
+    <div class="live"><i></i>수사 시스템 가동 중</div>
+    <button class="logbtn" id="logBtn" aria-label="수사 기록장 열기"><svg class="ic"><use href="#i-book"/></svg><span class="t">수사 기록장</span><span class="cnt" id="logCount">0</span></button>
+  </div>
+</header>
+
+<!-- 시작 -->
+<section id="start" class="screen">
+  <div class="hero">
+    <div>
+      <span class="tagline"><svg class="ic"><use href="#i-file"/></svg>국어 5-2 · 매체 자료의 신뢰성 평가하기</span>
+      <h1><span>가짜 정보</span><span>탐정단</span></h1>
+      <p class="sub">진실을 찾는 자, 정보의 함정을 밝혀라.</p>
+      <p class="sub" style="font-size:16px;margin-top:-14px"><span class="chip"><svg class="ic"><use href="#i-folder"/></svg>접수된 사건 <b id="caseTotal">20</b>건</span></p>
+      <div class="panel resume" id="resume" hidden>
+        <b id="resumeTitle"></b>
+        <small id="resumeSub"></small>
+        <button class="btn" id="resumeBtn"><svg class="ic"><use href="#i-folder"/></svg>이어서 수사하기</button>
+      </div>
+      <div class="namebox">
+        <label for="who"><svg class="ic"><use href="#i-user"/></svg>탐정 이름</label>
+        <input id="who" type="text" maxlength="12" placeholder="5학년 ○반 이름" autocomplete="off">
+      </div>
+      <div class="startbtns"><button class="btn big" id="go"><svg class="ic"><use href="#i-scan"/></svg>수사 시작!</button></div>
+      <div class="best" id="best" hidden><svg class="ic"><use href="#i-award"/></svg><span id="bestText"></span></div>
+    </div>
+    <div class="panel dossier" aria-hidden="true">
+      <svg class="ic fp"><use href="#i-fingerprint"/></svg>
+      <div class="h-label" style="position:relative"><svg class="ic"><use href="#i-file"/></svg>수사 파일 미리보기</div>
+      <div class="row"><svg class="ic"><use href="#i-file"/></svg><div><b>인터넷 게시글</b><small>글쓴이를 알 수 없어요</small></div><span class="chip warn">의심</span></div>
+      <div class="row"><svg class="ic"><use href="#i-news"/></svg><div><b>뉴스 기사</b><small>기자와 날짜가 분명해요</small></div><span class="chip ok">확인</span></div>
+      <div class="row"><svg class="ic"><use href="#i-search"/></svg><div><b>단체 대화방 메시지</b><small>사실인지 확인이 필요해요</small></div><span class="chip">분석 중</span></div>
+    </div>
+  </div>
+  <div class="brief">
+    <div class="panel">
+      <div class="h-label"><svg class="ic"><use href="#i-scan"/></svg>수사 절차</div>
+      <ol class="proc">
+        <li><span class="n">1</span><div><b>사건 접수</b><small>수상한 게시물과 뉴스가 도착한다.</small></div></li>
+        <li><span class="n">2</span><div><b>정보 판별</b><small>○ ×를 선택한다.</small></div></li>
+        <li class="key"><span class="n">3</span><div><b>증거 수집</b><small>의심스러운 문구를 직접 찾아낸다.</small></div></li>
+        <li><span class="n">4</span><div><b>근거 분석</b><small>왜 믿을 수 있는지, 없는지 판단한다.</small></div></li>
+        <li><span class="n">5</span><div><b>사건 해결</b><small>점수와 별점을 받고 탐정 등급을 올린다.</small></div></li>
+      </ol>
+    </div>
+    <div class="panel goal">
+      <div class="eb">CHIEF DETECTIVE</div>
+      <h3>최종 목표: 최고의 정보 탐정이 되어라!</h3>
+      <p>모든 사건을 해결하고 최종 탐정 자격을 획득하라. 빠르기보다 정확한 증거와 근거가 더 높은 점수를 받아요.</p>
+      <ul class="ladder">
+        <li><svg class="ic"><use href="#i-search"/></svg>탐정 수습생</li>
+        <li><svg class="ic"><use href="#i-fingerprint"/></svg>견습 탐정</li>
+        <li><svg class="ic"><use href="#i-shield-check"/></svg>수석 탐정</li>
+        <li><svg class="ic"><use href="#i-award"/></svg>신뢰성 대탐정<small>CHIEF</small></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 게임 -->
+<section id="game" class="screen" hidden>
+  <div class="kpis">
+    <div class="panel kpi">
+      <div class="k"><svg class="ic"><use href="#i-flag"/></svg>수사 진행률</div>
+      <div class="stage">
+        <span id="stageLabel">1 / 10</span>
+        <div class="bar" role="progressbar" aria-label="수사 진행률" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0"><i id="barFill"></i></div>
+      </div>
+    </div>
+    <div class="panel kpi"><div class="k"><svg class="ic"><use href="#i-target"/></svg>수사 점수</div><div class="v" id="scoreV">0</div></div>
+    <div class="panel kpi"><div class="k"><svg class="ic"><use href="#i-award"/></svg>연속 성공</div><div class="v" id="comboV"></div></div>
+    <div class="panel kpi" id="rankKpi"><div class="k"><svg class="ic"><use href="#i-shield-check"/></svg>탐정 등급</div><div class="rankv"><span id="rankIc"></span><span id="rankName"></span></div><div class="pips" id="pips"></div></div>
+  </div>
+
+  <div class="panel stepper" id="stepper" aria-label="수사 단계">
+    <div class="st"><span class="dot"><svg class="ic"><use href="#i-file"/></svg></span><span class="lb"><i>1</i>사건 접수</span></div>
+    <div class="st"><span class="dot"><svg class="ic"><use href="#i-search"/></svg></span><span class="lb"><i>2</i>정보 판별</span></div>
+    <div class="st"><span class="dot"><svg class="ic"><use href="#i-scan"/></svg></span><span class="lb"><i>3</i>증거 수집</span></div>
+    <div class="st"><span class="dot"><svg class="ic"><use href="#i-chart"/></svg></span><span class="lb"><i>4</i>근거 분석</span></div>
+    <div class="st"><span class="dot"><svg class="ic"><use href="#i-flag"/></svg></span><span class="lb"><i>5</i>사건 해결</span></div>
+  </div>
+
+  <div class="layout">
+    <main>
+      <!-- A. 사건 접수 -->
+      <div class="panel intake" id="intake">
+        <div class="no"><svg class="ic"><use href="#i-folder"/></svg><span id="inNo">CASE 01</span><span class="chip warn">접수 대기</span></div>
+        <h2 id="inTitle"></h2>
+        <p class="scene" id="inScene"></p>
+        <div class="goalrow"><span class="chip"><svg class="ic"><use href="#i-news"/></svg><span id="inType"></span></span><span>수사 목표: 이 자료를 믿을 수 있는지 판별하라.</span></div>
+        <div class="redact" aria-hidden="true"><i></i><i></i><i></i></div>
+        <button class="btn big" id="startCase"><svg class="ic"><use href="#i-scan"/></svg>수사 시작</button>
+      </div>
+
+      <!-- 수사 파일 -->
+      <div class="panel case" id="caseWrap" hidden>
+        <span class="scanline" aria-hidden="true"></span>
+        <div class="case-head">
+          <span class="case-no"><svg class="ic"><use href="#i-file"/></svg><span id="caseNo">CASE 01</span></span>
+          <span class="chip"><svg class="ic"><use href="#i-news"/></svg><span id="caseType"></span></span>
+          <span class="chip st-chip" id="caseStatus">판별 중</span>
+        </div>
+        <div class="case-main">
+          <p class="case-title" id="caseTitle"></p>
+          <div class="src"><svg class="ic"><use href="#i-link"/></svg><span id="srcText"></span></div>
+          <div class="body" id="caseBody"></div>
+        </div>
+      </div>
+
+      <!-- B. 정보 판별 -->
+      <div id="verdictArea" hidden>
+        <div class="ask"><svg class="ic"><use href="#i-search"/></svg>이 자료, 믿을 수 있을까요?</div>
+        <div class="verdicts">
+          <button class="btn yes" id="vYes"><span class="sym">○</span><span>믿을 수 있어요</span></button>
+          <button class="btn no" id="vNo"><span class="sym">×</span><span>믿기 어려워요</span></button>
+        </div>
+        <div class="vfb" id="vfb" role="status"></div>
+      </div>
+
+      <!-- C. 증거 수집 -->
+      <div id="evArea" hidden>
+        <div class="panel ev-banner">
+          <div class="h-label"><svg class="ic"><use href="#i-scan"/></svg>증거 수집</div>
+          <p id="evGuide"></p>
+          <div class="rule" id="evRule">
+            <b>증거로 고르는 기준</b>
+            <ul>
+              <li><svg class="ic"><use href="#i-link"/></svg>누가 만들었는지 (출처)</li>
+              <li><svg class="ic"><use href="#i-clock"/></svg>날짜·연락처처럼 확인할 수 있는 정보</li>
+              <li><svg class="ic"><use href="#i-chart"/></svg>근거나 까닭을 밝혔는지</li>
+              <li><svg class="ic"><use href="#i-megaphone"/></svg>부풀리거나 겁주는 표현, 팔려는 의도</li>
+            </ul>
+            <small>자료가 전하는 내용 자체나 제목·이름은 증거가 아니에요.</small>
+          </div>
+          <div class="ev-meter" id="evMeter">
+            <div class="slots" id="slots"></div>
+            <span class="ev-count" id="evCount">0 / 0</span>
+            <button class="btn" id="evSubmit" disabled><svg class="ic"><use href="#i-check"/></svg>증거 제출</button>
+          </div>
+          <div id="evResult" hidden>
+            <div class="sec-t" style="margin-top:6px"><svg class="ic"><use href="#i-folder"/></svg><span id="evResTitle"></span></div>
+            <div class="tray" id="evTray"></div>
+            <div class="ev-legend"><span><i class="sw h"></i>확보한 증거</span><span><i class="sw w"></i>관련 없는 문구</span><span><i class="sw m"></i>놓친 증거</span></div>
+            <div class="actions"><button class="btn big" id="evNext">근거 분석으로<svg class="ic"><use href="#i-arrow"/></svg></button></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- D. 근거 분석 -->
+      <div id="reasonArea" hidden>
+        <div class="ask"><svg class="ic"><use href="#i-chart"/></svg>그렇게 생각한 까닭은 무엇일까요?</div>
+        <div class="lens" aria-label="분석 관점">
+          <span><svg class="ic"><use href="#i-link"/></svg>출처의 신뢰성</span>
+          <span><svg class="ic"><use href="#i-megaphone"/></svg>과장된 표현</span>
+          <span><svg class="ic"><use href="#i-chart"/></svg>객관적 근거</span>
+          <span><svg class="ic"><use href="#i-pie"/></svg>통계의 적절성</span>
+          <span><svg class="ic"><use href="#i-award"/></svg>작성자 전문성</span>
+        </div>
+        <div class="reasons" id="reasonList"></div>
+      </div>
+
+      <!-- E. 사건 해결 -->
+      <div class="panel res" id="resArea" hidden></div>
+    </main>
+
+    <aside class="side">
+      <div class="panel">
+        <div class="h-label"><svg class="ic"><use href="#i-chart"/></svg>분석 체크리스트</div>
+        <ul class="crit">
+          <li><svg class="ic"><use href="#i-link"/></svg><div><b>출처</b>만든 사람이나 기관이 분명한가요?</div></li>
+          <li><svg class="ic"><use href="#i-chart"/></svg><div><b>근거</b>사실을 뒷받침하는 자료가 있나요?</div></li>
+          <li><svg class="ic"><use href="#i-megaphone"/></svg><div><b>표현</b>지나치게 부풀리거나 겁을 주지 않나요?</div></li>
+          <li><svg class="ic"><use href="#i-target"/></svg><div><b>의도·최신성</b>무언가를 팔려는 글인가요? 오래된 정보는 아닌가요?</div></li>
+        </ul>
+      </div>
+      <div class="panel tip"><b>수사 팁</b><br>답을 빨리 맞히는 것보다 증거와 근거를 정확히 찾는 것이 더 높은 점수를 받아요. 서두르지 말고 꼼꼼히 읽어 보세요.</div>
+    </aside>
+  </div>
+</section>
+
+<!-- 결과 -->
+<section id="result" class="screen" hidden>
+  <div class="report">
+    <div class="panel badgebox">
+      <div>
+        <div class="badge" id="resIcon" role="img" aria-label="수사 등급 배지"></div>
+        <div class="rank" id="rankV"></div>
+        <div class="who" id="resWho"></div>
+      </div>
+    </div>
+    <div class="panel scorebox">
+      <div class="h-label"><svg class="ic"><use href="#i-file"/></svg>최종 수사 보고서</div>
+      <div class="score" id="finalScore"></div>
+      <div class="sum" id="sumBox"><svg class="ic"><use href="#i-shield-check"/></svg><span id="resSummary"></span></div>
+    </div>
+  </div>
+
+  <div class="sec-t"><svg class="ic"><use href="#i-star"/></svg>사건별 평가</div>
+  <div class="casegrid" id="caseGrid"></div>
+
+  <div class="review">
+    <div class="panel"><b><svg class="ic"><use href="#i-link"/></svg>살펴볼 점 1: 출처</b>만든 사람이나 기관이 분명한가요?</div>
+    <div class="panel"><b><svg class="ic"><use href="#i-chart"/></svg>살펴볼 점 2: 근거</b>사실을 뒷받침하는 자료가 있나요?</div>
+    <div class="panel"><b><svg class="ic"><use href="#i-megaphone"/></svg>살펴볼 점 3: 표현</b>지나치게 부풀리거나 겁을 주지 않나요?</div>
+    <div class="panel"><b><svg class="ic"><use href="#i-target"/></svg>살펴볼 점 4: 의도·최신성</b>무언가를 팔려는 글인가요? 오래된 정보는 아닌가요?</div>
+  </div>
+  <div class="panel">
+    <div class="h-label" style="font-size:18px"><svg class="ic"><use href="#i-shield-alert"/></svg>허위 정보를 만났을 때</div>
+    <div class="steps">
+      <div><span class="n">1</span>출처를 확인해요.</div>
+      <div><span class="n">2</span>다른 자료와 견주어 봐요.</div>
+      <div><span class="n">3</span>믿기 전에, 전달하기 전에 멈춰요.</div>
+      <div><span class="n">4</span>의심스러우면 어른께 물어보고 신고해요.</div>
+    </div>
+  </div>
+  <div class="actions">
+    <button class="btn big ghost" id="openLog2"><svg class="ic"><use href="#i-book"/></svg>수사 기록장 열기</button>
+    <button class="btn big" id="retryWrong" hidden><svg class="ic"><use href="#i-refresh"/></svg>틀린 문제 다시 풀기</button>
+    <button class="btn big ghost" id="again"><svg class="ic"><use href="#i-refresh"/></svg>처음부터 다시</button>
+  </div>
+  <p class="note">이 화면을 캡처해서 선생님께 보여 주세요.</p>
+</section>
+
+<p class="note" id="foot">※ 연습용으로 만든 가상의 자료예요. 실제 기관·상품과 관계없어요.</p>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const REDUCED = !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+const ICON = (n, cls) => `<svg class="ic ${cls||""}"><use href="#i-${n}"/></svg>`;
+const TAG_ICON = { "출처":"link", "근거":"chart", "표현":"megaphone", "의도":"target", "최신성":"clock", "통계":"pie", "전문성":"award" };
+
+/* 문제 데이터
+   - answer: true = 믿을 수 있음(○)
+   - chunks: 본문. 문자열은 일반 글, 객체는 증거 후보 문구 (c:1 = 핵심 증거, c:0 = 관련 없는 문구, n = 증거 해설)
+   - srcC: 출처 줄 자체가 증거 후보일 때 (1 = 핵심 증거) */
+const QUESTIONS = [
+ { type:"인터넷 게시글", src:"글쓴이: 알 수 없음", srcC:1, srcN:"글쓴이를 알 수 없으면 잘못된 내용일 때 책임질 사람이 없어서 믿기 어려워요.", answer:false,
+   title:"기적의 사과즙 사건", intro:"한 온라인 커뮤니티에 건강 비법 글이 올라왔어요. 벌써 많은 학생이 이 글을 공유하고 있어요.",
+   chunks:[ {t:"이 사과즙만 마시면",c:0,n:"무엇에 관한 글인지 알려 주는 말이에요. 믿을 수 있는지 알려 주는 단서는 아니에요."}, " ",
+            {t:"일주일에 10kg이 빠져요!",c:1,n:"과학적 근거 없이 지나치게 큰 효과를 약속해요."}, " ",
+            {t:"병원도 필요 없어요!",c:1,n:"병원에 가지 말라는 말은 위험하고 근거도 없어요."}, " ",
+            {t:"익명 후기 123개",c:1,n:"이름 없는 후기는 진짜인지 확인할 수 없어요."}, "를 보고 믿으세요!" ],
+   reason:"만든 사람을 알 수 없고, 근거 없이 효과를 부풀렸어요.",
+   wrong:["글이 짧아서 믿을 수 없어요.","사과즙은 몸에 나쁜 음식이라서 그래요."],
+   tags:["출처","근거","표현"],
+   why:"누가 썼는지 알 수 없고, 효과를 뒷받침하는 자료도 없어요. 이름 없는 후기만 늘어놓은 것도 믿을 근거가 되지 못해요." },
+ { type:"예보", src:"기상청 누리집 예보 (예시)", answer:true,
+   title:"비 소식 확인 사건", intro:"우산을 챙길지 고민하던 중, 날씨 예보 화면을 발견했어요.",
+   chunks:[ {t:"기상청 예보",c:1,n:"예보를 만든 기관이 분명해요."}, " · ",
+            {t:"부산은 오후부터 비가 오겠습니다.",c:0,n:"예보가 전하는 내용이에요. 내용만으로는 믿을 수 있는지 알 수 없어요."}, " 강수 확률 70%. ",
+            {t:"발표 시각: 오전 11시",c:1,n:"언제 발표했는지 알 수 있어서 최신 정보인지 확인할 수 있어요."} ],
+   reason:"예보를 만든 기관과 발표 시각이 분명해요.",
+   wrong:["비가 온다는 내용이라 무조건 맞아요.","숫자가 들어 있으면 항상 믿을 수 있어요."],
+   tags:["출처","최신성","통계"],
+   why:"예보를 낸 기관이 분명하고, 언제 발표했는지도 알 수 있어요. 숫자가 있다는 이유만으로 믿는 것은 좋은 까닭이 아니에요." },
+ { type:"단체 대화방 메시지", src:"보낸 사람: 불분명", srcC:1, srcN:"보낸 사람이 분명하지 않으면 누가 책임지는지 알 수 없어요.", answer:false,
+   title:"한밤의 휴교 메시지 사건", intro:"단체 대화방에 갑자기 ‘긴급 소식’이 도착했어요.",
+   chunks:[ "급보! ",
+            {t:"내일부터 학교가 일주일 동안 문을 닫는대!",c:0,n:"소문의 내용이에요. 문제는 이 소식이 사실인지 확인할 단서가 없다는 점이에요."}, " ",
+            {t:"누가 말했는지는 몰라.",c:1,n:"말한 사람을 모르면 사실인지 확인할 수 없어요."}, " ",
+            {t:"일단 모두에게 퍼뜨려!",c:1,n:"확인도 없이 퍼뜨리게 해서 허위 정보를 널리 퍼뜨려요."} ],
+   reason:"누가 말했는지 모르는데, 확인 없이 퍼뜨리라고 해요.",
+   wrong:["대화방에서 온 메시지는 모두 가짜라서 그래요.","느낌표가 들어 있어서 가짜예요."],
+   tags:["출처","의도"],
+   why:"출처를 모르는 소식은 먼저 확인해야 해요. 확인도 없이 퍼뜨리게 하는 글은 허위 정보일 가능성이 커요." },
+ { type:"뉴스", src:"△△신문 · 김□□ 기자 · 11월 1일", srcC:1, srcN:"신문사, 기자 이름, 날짜가 있어서 누가 언제 썼는지 확인할 수 있어요.", answer:true,
+   title:"공원 그늘막 보도 사건", intro:"시청의 새 소식을 다룬 기사가 인터넷 뉴스에 올라왔어요.",
+   chunks:[ {t:"◇◇시는 올해 공원 12곳에 그늘막을 설치했다고 밝혔다.",c:0,n:"기사가 전하는 소식의 내용이에요. 믿을 수 있는 까닭은 내용이 아니라 누가 말했는지, 누가 언제 썼는지에 있어요."}, " ",
+            {t:"시 담당 부서 관계자는 “이용 현황을 조사해 내년에 늘릴 계획”이라고 말했다.",c:1,n:"누가 한 말인지 밝히고, 말한 내용을 그대로 옮겼어요."} ],
+   reason:"쓴 기자와 신문사, 날짜가 분명하고 말한 사람도 나와요.",
+   wrong:["뉴스는 글이 길어서 믿을 수 있어요.","시청 이야기라서 무조건 맞아요."],
+   tags:["출처","근거","최신성"],
+   why:"누가, 언제 썼는지 분명하고 누가 한 말인지도 밝혀 두었어요. ‘무조건 맞다’고 믿는 것이 아니라 확인할 수 있어서 믿을 만해요." },
+ { type:"영상 제목", src:"영상 제목과 설명", srcC:0, srcN:"자료의 종류를 알려 주는 말이에요. 믿을 수 있는지 알려 주는 단서는 아니에요.", answer:false,
+   title:"충격 폭로 영상 사건", intro:"추천 영상 목록에서 자극적인 제목의 영상이 눈에 띄어요.",
+   chunks:[ {t:"충격 폭로!!",c:1,n:"겁을 주고 놀라게 해서 눈길만 끄는 표현이에요."}, " ",
+            {t:"이걸 안 보면 평생 후회합니다!!",c:1,n:"보지 않으면 큰일 날 것처럼 부풀렸어요."}, " (영상 속 내용: ",
+            {t:"고양이 사진 3장",c:1,n:"제목은 대단한 일처럼 말하지만 실제 내용은 전혀 달라요."}, ")" ],
+   reason:"제목이 내용과 달라요. 겁을 주고 부풀려서 눈길만 끌어요.",
+   wrong:["고양이가 나오는 영상은 믿을 수 없어요.","영상은 글보다 항상 믿을 수 없어요."],
+   tags:["표현","의도"],
+   why:"제목은 대단한 일처럼 말하지만 실제 내용은 달라요. 클릭을 늘리려고 과장하는 표현은 조심해서 봐야 해요." },
+ { type:"안내문", src:"◇◇과학관 누리집", srcC:1, srcN:"안내문을 만든 기관(과학관)의 누리집이라 출처가 분명해요.", answer:true,
+   title:"과학관 체험 행사 사건", intro:"과학관 누리집에서 체험 행사 안내문을 발견했어요.",
+   chunks:[ {t:"11월 체험 행사 안내",c:0,n:"안내문의 제목이에요. 제목은 믿을 수 있는지 알려 주는 단서가 아니에요."}, " · ",
+            {t:"일시: 11월 8일 오후 2시~4시",c:1,n:"날짜와 시간이 구체적이라 확인할 수 있어요."}, " · ",
+            {t:"장소: 과학관 2층",c:1,n:"장소가 분명해서 직접 찾아가 확인할 수 있어요."}, " · 참가비: 무료 · ",
+            {t:"문의: 과학관 누리집, 전화 000-0000",c:1,n:"궁금한 점을 물어볼 연락처가 있어요."} ],
+   reason:"만든 기관이 분명하고, 날짜와 문의할 곳이 구체적이에요.",
+   wrong:["참가비가 무료라서 믿을 수 있어요.","과학관은 틀린 말을 할 수 없어요."],
+   tags:["출처","근거"],
+   why:"기관, 날짜, 장소, 연락처처럼 확인할 수 있는 정보가 구체적이에요. ‘틀릴 리 없다’가 아니라 확인할 수 있다는 점이 중요해요." },
+ { type:"쇼핑몰 광고", src:"인터넷 쇼핑몰", answer:false,
+   title:"100% 보장 운동화 사건", intro:"쇼핑몰에서 눈에 확 띄는 운동화 광고가 나타났어요.",
+   chunks:[ {t:"이 운동화를 신으면 달리기 1등 100% 보장!",c:1,n:"어떤 신발도 1등을 100% 보장할 수 없어요. 근거 없는 과장이에요."}, " ",
+            {t:"전문가 추천! (전문가 이름·소속: 없음)",c:1,n:"어떤 전문가인지 밝히지 않아서 진짜 전문가인지 확인할 수 없어요."}, " ",
+            {t:"오늘 밤 12시까지만!",c:1,n:"서둘러 사게 만들려는, 물건을 팔려는 의도가 보여요."} ],
+   reason:"100% 보장은 근거가 없고, 전문가가 누구인지도 몰라요.",
+   wrong:["광고는 모두 거짓이라서 그래요.","운동화는 비싸서 믿을 수 없어요."],
+   tags:["근거","표현","의도","전문성"],
+   why:"‘100% 보장’은 근거가 없고 전문가도 누군지 몰라요. 서둘러 사게 만드는 말은 물건을 팔려는 의도가 크다는 신호예요." },
+ { type:"백과사전", src:"◇◇ 어린이 백과사전", answer:true,
+   title:"고래의 정체 사건", intro:"어린이 백과사전에서 고래에 관한 설명을 찾았어요.",
+   chunks:[ {t:"고래는 물고기가 아니라 포유류입니다.",c:0,n:"글쓴이의 주장이에요. 믿을 수 있는지는 주장이 아니라 그렇게 말하는 까닭(근거)에서 알 수 있어요."}, " ",
+            {t:"새끼를 낳아 젖을 먹여 키우기 때문입니다.",c:1,n:"주장만 하지 않고, 그렇게 말하는 까닭(근거)을 함께 설명했어요."}, " ",
+            {t:"(감수: 과학 전문가)",c:1,n:"전문가가 내용을 확인했다는 표시예요."} ],
+   reason:"까닭이 설명되어 있고, 전문가가 확인했어요.",
+   wrong:["책에 실린 글은 항상 맞아요.","어려운 낱말이 있어서 믿을 수 있어요."],
+   tags:["출처","근거","전문성"],
+   why:"주장만 하지 않고 까닭을 함께 설명했고, 전문가가 감수했어요. 책이라서 무조건 맞는 것은 아니니 이런 점을 살펴봐야 해요." },
+ { type:"게시글", src:"작성일: 5년 전", srcC:1, srcN:"쓴 지 5년이 지난 글이라 지금의 사실이 아닐 수 있어요.", answer:false,
+   title:"되살아난 버스 소식 사건", intro:"‘내일부터 바뀐다’는 버스 소식이 다시 퍼지고 있어요.",
+   chunks:[ {t:"내일부터",c:1,n:"‘내일’이라고 쓰였지만 글을 쓴 때가 5년 전이라, 지금 기준의 ‘내일’이 아니에요."}, " ",
+            {t:"버스 노선이 바뀝니다!",c:0,n:"소식의 내용이에요. 문제는 이 글이 쓰인 때가 오래전이라는 점이에요."}, " 꼭 알려 주세요!" ],
+   reason:"오래된 글을 오늘 소식처럼 퍼뜨리고 있어요.",
+   wrong:["버스 이야기는 중요하지 않아서요.","느낌표를 써서 가짜예요."],
+   tags:["최신성"],
+   why:"‘내일부터’라고 쓰여 있어도 5년 전에 쓴 글이면 지금 사실이 아니에요. 글이 언제 쓰였는지도 꼭 확인해요." },
+ { type:"학급 누리집", src:"5학년 ○반 학급 누리집", answer:true,
+   title:"급식 인기투표 결과 사건", intro:"학급 누리집에 급식 설문 결과가 올라왔어요.",
+   chunks:[ {t:"우리 반 급식 설문",c:0,n:"설문의 이름이에요. 믿을 수 있는지 알려 주는 단서는 아니에요."}, " ",
+            {t:"(25명 참여)",c:1,n:"몇 명에게 조사했는지 밝혀서 결과를 확인할 수 있어요."}, " · 1위 떡볶이 12명, 2위 돈가스 8명. ",
+            {t:"조사: 5학년 ○반 학급 회의, 11월 3일",c:1,n:"누가, 언제 조사했는지 분명해요."} ],
+   reason:"조사한 곳, 날짜, 참여한 사람 수가 분명해요.",
+   wrong:["친구들이 만든 자료라서 무조건 맞아요.","음식 이야기라서 믿을 수 있어요."],
+   tags:["출처","근거","통계"],
+   why:"누가, 언제, 몇 명에게 조사했는지 분명해서 확인할 수 있어요. 친구가 만들었다는 이유만으로 믿는 것은 아니에요." },
+
+ /* ---- 새 사건 11~20 ---- */
+ { type:"SNS 게시물", src:"계정: 운영자를 알 수 없는 ‘건강비법’ 계정", srcC:1, srcN:"누가 운영하는지 알 수 없어서 내용을 책임질 사람이 없어요.", answer:false,
+   title:"감기 예방 물 사건", intro:"SNS에서 ‘감기 예방 물’을 소개하는 게시물이 빠르게 퍼지고 있어요.",
+   chunks:[ "건강 비법 공개! ",
+            {t:"이 물만 마시면 감기에 절대 안 걸려요!",c:1,n:"‘절대’라는 말로 효과를 장담해요. 감기를 완전히 막는 물은 없어요."}, " ",
+            {t:"연구 결과로 입증되었습니다! (어느 연구인지는 알려 주지 않음)",c:1,n:"연구를 누가 했는지 밝히지 않아서 확인할 수 없어요."}, " ",
+            {t:"지금 사면 두 병을 더 드려요!",c:1,n:"물건을 팔려는 의도가 드러나고, 서둘러 사게 만들어요."}, " (사진: ",
+            {t:"컵에 담긴 물",c:0,n:"사진을 설명하는 말이에요. 믿을 수 있는지 알려 주는 단서는 아니에요."}, ")" ],
+   reason:"근거 없이 ‘절대’라고 장담하고, 연구도 누가 했는지 밝히지 않았어요.",
+   wrong:["사진이 한 장뿐이라서 그래요.","물에 관한 글은 모두 가짜라서 그래요."],
+   tags:["출처","근거","표현","의도"],
+   why:"운영자를 알 수 없고, ‘절대’처럼 장담하는 말과 누가 했는지 모르는 ‘연구 결과’는 믿기 어려워요. 물건을 팔려는 의도도 보여요." },
+ { type:"인터넷 기사 제목", src:"작성자: 알 수 없음", srcC:1, srcN:"쓴 사람을 알 수 없어서 내용을 책임질 사람이 없어요.", answer:false,
+   title:"게임 천재 통계 사건", intro:"‘게임을 오래 할수록 성적이 높다’는 기사 제목이 화제예요.",
+   chunks:[ "하루 10시간 게임하는 학생, 성적이 더 높다! ",
+            {t:"(조사 대상: 5명)",c:1,n:"겨우 5명만 조사한 결과로는 많은 학생의 이야기를 대표할 수 없어요."}, " ",
+            {t:"조사한 곳: 밝히지 않음",c:1,n:"누가 조사했는지 몰라서 확인할 수 없어요."}, " ",
+            {t:"그러니 모든 학생이 게임을 더 해야 합니다!",c:1,n:"5명의 결과를 ‘모든 학생’에게 똑같이 적용하는 지나친 일반화예요."}, " (그림: ",
+            {t:"게임기를 든 학생",c:0,n:"그림을 설명하는 말이에요. 믿을 수 있는지 알려 주는 단서는 아니에요."}, ")" ],
+   reason:"겨우 5명만 조사했고 조사한 곳도 밝히지 않았는데, 모든 학생에게 똑같이 말해요.",
+   wrong:["제목에 숫자가 들어 있어서 그래요.","게임에 관한 기사는 모두 믿을 수 없어서 그래요."],
+   tags:["출처","근거","통계"],
+   why:"5명은 너무 적은 수라서 ‘모든 학생’에게 똑같이 말할 수 없어요. 조사한 곳도, 쓴 사람도 밝히지 않아 확인할 수 없어요." },
+ { type:"안내문", src:"◇◇소방서 누리집", srcC:1, srcN:"안내문을 만든 기관(소방서)이 분명해요.", answer:true,
+   title:"화재 대피 안내 사건", intro:"학교 앞 게시판에 화재 대피 요령 안내문이 붙어 있어요.",
+   chunks:[ {t:"화재 대피 요령 안내",c:0,n:"안내문의 제목이에요. 제목은 믿을 수 있는지 알려 주는 단서가 아니에요."}, " · ",
+            {t:"작성: ◇◇소방서, 9월에 고쳐 씀",c:1,n:"만든 기관과 고친 시기가 분명해서 최신 안내인지 확인할 수 있어요."}, " · ",
+            {t:"불이 나면 낮은 자세로 몸을 숙이고 젖은 수건으로 코와 입을 막은 뒤 대피합니다.",c:0,n:"안내가 전하는 내용이에요. 내용만으로는 믿을 수 있는지 알 수 없어요."}, " · ",
+            {t:"문의: ◇◇소방서 안전과, 전화 000-0000",c:1,n:"궁금한 점을 직접 확인할 수 있는 연락처가 있어요."} ],
+   reason:"소방서가 만든 안내이고, 만든 시기와 문의할 곳이 분명해요.",
+   wrong:["안전에 관한 내용이라서 무조건 맞아요.","글자가 크고 눈에 잘 띄어서 믿을 수 있어요."],
+   tags:["출처","최신성"],
+   why:"만든 기관, 고친 시기, 문의할 곳처럼 확인할 수 있는 정보가 분명해요. ‘안전 이야기라서 맞다’가 아니라 확인할 수 있다는 점이 중요해요." },
+ { type:"학급 신문 기사", src:"5학년 ○반 학급 신문 · 취재: 신문 모둠 · 10월 28일", srcC:1, srcN:"취재한 모둠과 날짜가 분명해요.", answer:true,
+   title:"도서실 운영 시간 보도 사건", intro:"학급 신문에 도서실 운영 시간이 바뀐다는 기사가 실렸어요.",
+   chunks:[ {t:"학급 신문 제3호",c:0,n:"신문의 호수예요. 믿을 수 있는지 알려 주는 단서는 아니에요."}, " · ",
+            {t:"도서실은 11월부터 방과 후 오후 4시까지 문을 엽니다.",c:0,n:"기사가 전하는 소식의 내용이에요. 믿을 수 있는 까닭은 내용이 아니라 누가 말했는지, 어떻게 확인했는지에 있어요."}, " ",
+            {t:"사서 선생님은 “책을 더 빌려 가도록 시간을 늘렸다”고 말했다.",c:1,n:"누가 한 말인지 밝히고, 말한 내용을 그대로 옮겼어요."}, " ",
+            {t:"(확인한 자료: 도서실 안내 게시판)",c:1,n:"어떤 자료로 확인했는지 밝혀서 직접 다시 확인할 수 있어요."} ],
+   reason:"취재한 모둠과 날짜가 분명하고, 말한 사람과 확인한 자료도 밝혔어요.",
+   wrong:["학생들이 쓴 기사는 틀릴 수 없어서 믿을 수 있어요.","학교 이야기라서 무조건 맞아요."],
+   tags:["출처","근거","최신성"],
+   why:"누가 취재했는지, 누가 말했는지, 무엇으로 확인했는지가 모두 밝혀져 있어요. 학생이 썼다는 이유만으로 믿는 것이 아니라 확인할 수 있어서 믿을 만해요." },
+ { type:"문자 메시지", src:"보낸 곳: 모르는 번호", srcC:1, srcN:"모르는 번호라서 누가 보냈는지 확인할 수 없어요.", answer:false,
+   title:"당첨 문자 사건", intro:"‘경품에 당첨되었습니다’라는 문자가 도착했어요.",
+   chunks:[ {t:"경품 이벤트 안내",c:0,n:"문자의 제목이에요. 믿을 수 있는지 알려 주는 단서는 아니에요."}, " · 축하합니다! ",
+            {t:"응모한 적이 없어도 최신 스마트폰에 당첨되었습니다!",c:1,n:"응모하지 않았는데 당첨됐다는 말은 앞뒤가 맞지 않아요."}, " ",
+            {t:"아래 주소를 눌러 이름과 비밀번호를 입력하세요.",c:1,n:"개인 정보를 알아내려는 의도가 보여요. 모르는 주소는 누르지 않아야 해요."}, " ",
+            {t:"24시간 안에 입력하지 않으면 당첨이 취소됩니다!",c:1,n:"서둘러 행동하게 만들어서 생각할 시간을 빼앗아요."} ],
+   reason:"응모하지 않았는데 당첨이라고 하고, 개인 정보를 입력하라며 서두르게 해요.",
+   wrong:["문자 메시지는 모두 가짜라서 그래요.","당첨 상품이 너무 비싸서 그래요."],
+   tags:["출처","표현","의도"],
+   why:"보낸 사람을 모르고, 응모하지 않았는데 당첨이라고 해요. 개인 정보를 입력하게 하고 서두르게 하는 것은 속이려는 글에서 자주 보이는 모습이에요." },
+ { type:"설명 글", src:"◇◇ 과학 도감 (감수: 천문학 연구원)", srcC:1, srcN:"책 이름과 감수한 전문가가 밝혀져 있어요.", answer:true,
+   title:"달의 모양 설명 사건", intro:"과학 도감에서 달의 모양이 바뀌는 까닭을 설명한 글을 찾았어요.",
+   chunks:[ {t:"달의 모양이 바뀌어 보이는 까닭",c:0,n:"설명 글의 제목이에요. 믿을 수 있는지 알려 주는 단서는 아니에요."}, " · ",
+            {t:"달은 스스로 빛을 내지 않고 햇빛을 받아 반사해서 빛나 보입니다.",c:0,n:"글쓴이의 주장이에요. 믿을 수 있는지는 주장이 아니라 그렇게 말하는 까닭(근거)에서 알 수 있어요."}, " ",
+            {t:"달이 지구 둘레를 도는 동안 햇빛을 받는 부분이 다르게 보이기 때문에 모양이 바뀝니다.",c:1,n:"그렇게 말하는 까닭(과학적 설명)을 함께 밝혔어요."}, " ",
+            {t:"(자료: ◇◇천문대 관측 기록)",c:1,n:"어떤 자료를 바탕으로 했는지 밝혔어요."} ],
+   reason:"그렇게 말하는 까닭을 설명했고, 바탕이 된 자료와 감수한 전문가를 밝혔어요.",
+   wrong:["그림이 많아서 믿을 수 있어요.","과학 도감은 어려워서 믿을 수 있어요."],
+   tags:["출처","근거","전문성"],
+   why:"주장만 하지 않고 까닭을 설명했고, 어떤 자료를 바탕으로 했는지와 감수한 전문가가 밝혀져 있어요." },
+ { type:"광고 영상 설명", src:"광고 영상 · 만든 곳: 표시 없음", srcC:1, srcN:"만든 곳을 밝히지 않아서 광고 내용을 책임지는 곳을 알 수 없어요.", answer:false,
+   title:"하루 만에 영어 박사 사건", intro:"영어 학습 앱 광고 영상이 추천 목록에 떴어요.",
+   chunks:[ {t:"◇◇ 영어 앱",c:0,n:"앱의 이름이에요. 믿을 수 있는지 알려 주는 단서는 아니에요."}, " · ",
+            {t:"하루 10분이면 영어 박사 완성!",c:1,n:"짧은 시간에 엄청난 효과를 약속하지만 근거가 없어요."}, " ",
+            {t:"수강생 100% 만족! (조사한 곳: 밝히지 않음)",c:1,n:"100% 만족이라는 결과를 누가 조사했는지 밝히지 않아서 믿을 수 없어요."}, " ",
+            {t:"오늘 가입하면 평생 무료 이용권을 드립니다!",c:1,n:"서둘러 가입하게 만들려는 의도가 보여요."} ],
+   reason:"짧은 시간에 큰 효과를 약속하면서, 만족도 조사를 누가 했는지 밝히지 않았어요.",
+   wrong:["광고 영상은 길이가 짧아서 그래요.","영어 공부는 앱으로 할 수 없어서 그래요."],
+   tags:["근거","표현","통계","의도"],
+   why:"‘하루 10분이면 박사’는 근거 없는 과장이고, ‘100% 만족’도 누가 조사했는지 몰라요. 서둘러 가입하게 하는 말은 팔려는 의도를 보여 줘요." },
+ { type:"그래프 자료", src:"학교 누리집 · 도서관 담당 선생님", srcC:1, srcN:"자료를 올린 사람이 담당 선생님으로 분명해요.", answer:true,
+   title:"도서 대출 그래프 사건", intro:"학교 누리집에 월별 도서 대출 그래프가 올라왔어요.",
+   chunks:[ {t:"월별 도서 대출 권수",c:0,n:"그래프의 제목이에요. 믿을 수 있는지 알려 주는 단서는 아니에요."}, " · ",
+            {t:"자료: 학교 도서관 대출 기록",c:1,n:"어떤 자료로 만들었는지 밝혔어요."}, " · ",
+            {t:"조사 기간: 9월 1일~10월 31일",c:1,n:"조사한 기간이 분명해서 확인할 수 있어요."}, " · ",
+            {t:"대상: 전교생 540명의 기록 전체",c:1,n:"몇 명의 기록을 모았는지 밝혔고, 일부가 아니라 전체 기록을 사용했어요."} ],
+   reason:"자료의 출처와 조사 기간, 조사한 사람 수가 분명해요.",
+   wrong:["그래프는 그림이라서 항상 믿을 수 있어요.","막대가 길어서 믿을 수 있어요."],
+   tags:["출처","근거","통계"],
+   why:"자료를 어디서 가져왔는지, 언제부터 언제까지인지, 몇 명의 기록인지가 모두 밝혀져 있어요. 그래프 모양만 보고 믿는 것이 아니라 확인할 수 있어서 믿을 만해요." },
+ { type:"가정통신문", src:"◇◇초등학교 가정통신문 (교장 직인)", srcC:1, srcN:"학교 이름과 학교장 직인이 있어서 학교가 보낸 공식 문서예요.", answer:true,
+   title:"현장체험학습 안내 사건", intro:"가방 속에서 현장체험학습 가정통신문을 발견했어요.",
+   chunks:[ {t:"현장체험학습 안내",c:0,n:"안내문의 제목이에요. 믿을 수 있는지 알려 주는 단서는 아니에요."}, " · ",
+            {t:"일시: 11월 20일(금) 오전 9시~오후 3시",c:1,n:"날짜와 시간이 구체적이라 확인할 수 있어요."}, " · ",
+            {t:"장소: ◇◇박물관",c:1,n:"장소가 분명해서 확인할 수 있어요."}, " · ",
+            {t:"준비물: 도시락, 물",c:0,n:"준비물을 알려 주는 내용이에요. 믿을 수 있는지와는 관계가 없어요."}, " · ",
+            {t:"문의: 5학년 담임 선생님 또는 행정실, 전화 000-0000",c:1,n:"궁금한 점을 물어볼 연락처가 있어요."} ],
+   reason:"학교가 보낸 공식 문서이고, 날짜와 장소, 문의할 곳이 구체적이에요.",
+   wrong:["종이에 인쇄되어 있어서 믿을 수 있어요.","학교에서 온 글은 틀릴 수 없어서 믿을 수 있어요."],
+   tags:["출처","근거","최신성"],
+   why:"학교 이름과 교장 직인이 있고, 날짜·장소·문의할 곳이 구체적이에요. 학교에서 온 글이라서 무조건 맞다는 것이 아니라 확인할 수 있다는 점이 중요해요." },
+ { type:"블로그 글", src:"글쓴이: 이 안경을 파는 업체", srcC:1, srcN:"파는 사람이 쓴 글이라 자기 물건을 좋게만 말할 수 있어요.", answer:false,
+   title:"기적의 안경 사건", intro:"블로그에서 ‘초집중 안경’을 소개하는 글을 발견했어요.",
+   chunks:[ {t:"초집중 안경 상품 소개",c:0,n:"글의 제목이에요. 믿을 수 있는지 알려 주는 단서는 아니에요."}, " · ",
+            {t:"쓰기만 하면 성적이 쑥쑥 오릅니다!",c:1,n:"안경만 쓴다고 성적이 오른다는 근거가 없어요."}, " ",
+            {t:"유명한 교육 전문가가 추천! (전문가 이름: 밝히지 않음)",c:1,n:"누구인지 밝히지 않은 전문가는 확인할 수 없어요."}, " ",
+            {t:"후기 모음 (후기는 모두 판매자가 직접 작성)",c:1,n:"파는 사람이 직접 쓴 후기는 공정한 평가가 아니에요."} ],
+   reason:"파는 업체가 쓴 글이고, 근거 없이 효과를 장담하며 전문가도 밝히지 않았어요.",
+   wrong:["안경은 눈에 나쁜 물건이라서 그래요.","후기가 많이 달려 있어서 그래요."],
+   tags:["출처","근거","표현","전문성"],
+   why:"파는 업체가 쓴 글이라 좋은 말만 할 수 있어요. 근거 없이 성적이 오른다고 장담하고, 전문가의 이름도 밝히지 않았어요." }
+];
+
+/* 점수 규칙: 판별 10 + 증거 수집 최대 30 + 근거 분석 30 (사건당 최대 70). 연속 3회부터 +5. 속도는 점수와 무관해요. */
+const PTS = { verdict:10, evidence:30, reason:30, combo:5 };
+const maxScore = n => n * (PTS.verdict + PTS.evidence + PTS.reason) + Math.max(0, n - 2) * PTS.combo;
+const RANKS = [
+  { name:"탐정 수습생", min:0,   icon:"search" },
+  { name:"견습 탐정",   min:.35, icon:"fingerprint" },
+  { name:"수석 탐정",   min:.7,  icon:"shield-check" },
+  { name:"신뢰성 대탐정", min:.9, icon:"award" }
+];
+const rankIdxOf = (score, n) => { const r = score / maxScore(n); let k = 0; RANKS.forEach((x, i) => { if (r >= x.min) k = i; }); return k; };
+const EVAL = {
+  3:"완벽한 수사! 증거와 근거를 모두 정확히 찾았어요.",
+  2:"훌륭한 수사예요. 놓친 부분을 해설에서 확인해 보세요.",
+  1:"판단은 맞았어요. 증거와 근거를 더 꼼꼼히 살펴봐요.",
+  0:"수사 결과가 달라요. 해설을 읽고 다시 도전해 봐요."
+};
+
+const shuffle = a => { a = a.slice(); for (let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; };
+const cluesOf = q => { const a = []; if (q.srcC) a.push({ t:q.src, n:q.srcN }); q.chunks.forEach(c => { if (typeof c === "object" && c.c) a.push(c); }); return a; };
+
+/* ---------- 저장 / 불러오기 (진행 상태 유지) ---------- */
+const LS_KEY = "fakeinfo-detective-v4";
+function readSave(){ try { return JSON.parse(localStorage.getItem(LS_KEY) || "null"); } catch(e){ return null; } }
+let BEST = null;
+function persist(nextIdx, done){
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify({
+      v:3, name:S.name, ids:S.list.map(q => q.n), idx:nextIdx, score:S.score, combo:S.combo, perfect:S.perfect,
+      wrongIdx:S.wrongIdx, retry:S.retry, log:S.log, rankIdx:S.rankIdx, done:!!done, best:BEST
+    }));
+  } catch(e){}
+}
+
+/* ---------- 상태 ---------- */
+let S = { name:"", log:[], cur:{} };
+function fresh(list, isRetry){
+  const nm = S ? S.name : "";
+  S = { list, idx:0, score:0, combo:0, perfect:0, wrongIdx:[], retry:isRetry, name:nm, log:[], rankIdx:0, phase:"A", cur:{}, timer:null, done:false };
+}
+const curQ = () => S.list[S.idx];
+
+/* ---------- 화면 전환 ---------- */
+function show(id){
+  ["start","game","result"].forEach(x => { const e = $(x); e.hidden = (x !== id); if (x === id){ e.classList.remove("enter"); void e.offsetWidth; e.classList.add("enter"); } });
+  window.scrollTo(0, 0);
+}
+
+/* ---------- 알림 ---------- */
+function toast(kind, icon, title, sub){
+  const t = document.createElement("div");
+  t.className = "toast " + kind;
+  t.innerHTML = `<span class="ti">${ICON(icon)}</span><div><b></b><small></small></div>`;
+  t.querySelector("b").textContent = title; t.querySelector("small").textContent = sub || "";
+  if (!sub) t.querySelector("small").remove();
+  $("toasts").appendChild(t);
+  setTimeout(() => { t.classList.add("out"); setTimeout(() => t.remove(), 380); }, 2600);
+  while ($("toasts").children.length > 3) $("toasts").firstChild.remove();
+}
+function burst(host){
+  if (REDUCED) return;
+  for (let i = 0; i < 18; i++){
+    const s = document.createElement("span"); s.className = "spark";
+    s.style.setProperty("--a", (i * 20 + Math.random() * 10) + "deg");
+    s.style.setProperty("--d", (70 + Math.random() * 40) + "px");
+    s.style.background = i % 3 === 0 ? "linear-gradient(#FFD166,transparent)" : "";
+    host.appendChild(s); setTimeout(() => s.remove(), 1200);
+  }
+}
+function countUp(el, to, fmt){
+  if (REDUCED || to === 0){ el.textContent = fmt(to); return; }
+  const t0 = performance.now(), dur = 800;
+  const tick = now => { const p = Math.min(1, (now - t0) / dur); el.textContent = fmt(Math.round(to * (1 - Math.pow(1 - p, 3)))); if (p < 1) requestAnimationFrame(tick); };
+  requestAnimationFrame(tick);
+}
+
+/* ---------- HUD ---------- */
+function hud(){
+  const total = S.list.length;
+  $("stageLabel").textContent = (S.retry ? "복습 " : "") + (Math.min(S.idx + 1, total)) + " / " + total;
+  const bar = $("barFill").parentElement;
+  $("barFill").style.width = (S.idx / total * 100) + "%";
+  bar.setAttribute("aria-valuenow", S.idx); bar.setAttribute("aria-valuemax", total);
+  $("scoreV").textContent = S.score;
+  $("comboV").textContent = S.combo >= 2 ? S.combo + "연속 성공!" : "";
+  const k = rankIdxOf(S.score, total);
+  if (k > S.rankIdx){
+    S.rankIdx = k;
+    toast("rank", RANKS[k].icon, "탐정 등급 상승!", RANKS[k].name + " 등급이 되었어요.");
+    const kp = $("rankKpi"); kp.classList.remove("rankup"); void kp.offsetWidth; kp.classList.add("rankup");
+  }
+  $("rankIc").innerHTML = ICON(RANKS[S.rankIdx].icon);
+  $("rankName").textContent = RANKS[S.rankIdx].name;
+  $("pips").innerHTML = RANKS.map((r, i) => `<i class="${i <= S.rankIdx ? "on" : ""}"></i>`).join("");
+  $("logCount").textContent = S.log.reduce((a, e) => a + e.hits.length, 0);
+}
+
+/* ---------- 단계 표시 ---------- */
+const STATUS = { A:"접수 대기", B:"판별 중", C:"증거 수집 중", D:"근거 분석 중", E:"분석 완료" };
+function setPhase(p, skipMid){
+  S.phase = p; const k = "ABCDE".indexOf(p);
+  [...$("stepper").children].forEach((el, i) => {
+    const sk = skipMid && (i === 2 || i === 3);
+    el.className = "st" + (i < k && !sk ? " done" : "") + (i === k ? " active" : "") + (sk ? " skip" : "");
+  });
+  const vis = { intake:p==="A", caseWrap:p!=="A", verdictArea:p==="B", evArea:p==="C", reasonArea:p==="D", resArea:p==="E" };
+  Object.keys(vis).forEach(id => {
+    const e = $(id); e.hidden = !vis[id];
+    if (vis[id] && id !== "caseWrap" && id !== "intake"){ e.classList.remove("phase-in"); void e.offsetWidth; e.classList.add("phase-in"); }
+  });
+  const st = $("caseStatus");
+  st.className = "chip st-chip" + (p === "E" ? (S.cur.stars > 0 ? " ok" : " warn") : "");
+  st.textContent = STATUS[p];
+}
+const scrollTo_ = el => el.scrollIntoView({ behavior: REDUCED ? "auto" : "smooth", block: "nearest" });
+
+/* ---------- 사건 파일 렌더 (plain / select / reveal) ---------- */
+function renderCase(mode){
+  const q = curQ(); const items = []; S.cur.items = items;
+  $("caseTitle").textContent = q.title;
+  const sel = S.cur.sel || new Set();
+  const mk = (o, isSrc) => {
+    const it = { t:o.t, c:o.c ? 1 : 0, n:o.n || "", src:isSrc, i:items.length };
+    items.push(it);
+    let el;
+    if (mode === "plain"){ el = document.createElement("span"); el.textContent = o.t; }
+    else if (mode === "select"){
+      el = document.createElement("button"); el.type = "button"; el.className = "ck"; el.textContent = o.t;
+      el.setAttribute("aria-pressed", "false"); el.onclick = () => toggleItem(it);
+    } else {
+      el = document.createElement("span"); el.textContent = o.t; el.className = "ck";
+      el.style.setProperty("--i", String(items.length - 1));
+      if (mode === "reveal"){
+        if (it.c && sel.has(it.i)) el.classList.add("hit");
+        else if (!it.c && sel.has(it.i)) el.classList.add("wrong");
+        else if (it.c) el.classList.add("missed");
+      } else if (mode === "clues" && it.c){
+        el.classList.add(q.answer ? "show-good" : "show-bad");
+      }
+    }
+    it.el = el; return el;
+  };
+  const srcEl = $("srcText"); srcEl.textContent = "";
+  if (q.srcC !== undefined) srcEl.appendChild(mk({ t:q.src, c:q.srcC, n:q.srcN }, true)); else srcEl.textContent = q.src;
+  const body = $("caseBody"); body.textContent = "";
+  q.chunks.forEach(c => { if (typeof c === "string") body.appendChild(document.createTextNode(c)); else body.appendChild(mk(c, false)); });
+}
+
+/* ---------- 흐름 ---------- */
+function loadQ(){
+  const q = curQ();
+  clearTimeout(S.timer);
+  S.cur = { sel:new Set(), locked:false, verdictOK:false, evPts:0, evHit:0, reasonOK:false, reasonPts:0, comboBonus:0, stars:0 };
+  hud();
+  const nn = "CASE " + String(q.n + 1).padStart(2, "0");
+  $("inNo").textContent = nn; $("caseNo").textContent = nn;
+  $("inTitle").textContent = q.title; $("inScene").textContent = q.intro;
+  $("inType").textContent = q.type; $("caseType").textContent = q.type;
+  const it = $("intake"); it.classList.remove("opening"); it.classList.remove("phase-in"); void it.offsetWidth; it.classList.add("phase-in");
+  $("startCase").disabled = false;
+  setPhase("A");
+  $("caseWrap").classList.remove("fileopen","scan","flash-ok","flash-bad");
+  scrollTo_($("stepper"));
+}
+
+function startCase(){
+  $("startCase").disabled = true;
+  $("intake").classList.add("opening");
+  setTimeout(() => {
+    S.cur.sel = new Set(); renderCase("plain");
+    const cw = $("caseWrap");
+    cw.classList.remove("fileopen","scan"); void cw.offsetWidth; cw.classList.add("fileopen","scan");
+    ["vYes","vNo"].forEach(id => { $(id).className = "btn " + (id === "vYes" ? "yes" : "no"); $(id).disabled = false; });
+    $("vfb").className = "vfb"; $("vfb").textContent = "";
+    setPhase("B"); scrollTo_($("verdictArea"));
+  }, REDUCED ? 0 : 520);
+}
+
+function verdict(v){
+  if (S.cur.locked) return; S.cur.locked = true;
+  const q = curQ(), ok = (v === q.answer);
+  S.cur.verdictOK = ok;
+  $("vYes").disabled = $("vNo").disabled = true;
+  (v ? $("vYes") : $("vNo")).classList.add(ok ? "right" : "miss");
+  const cw = $("caseWrap"); cw.classList.remove("flash-ok","flash-bad"); void cw.offsetWidth; cw.classList.add(ok ? "flash-ok" : "flash-bad");
+  const f = $("vfb");
+  if (ok){
+    S.score += PTS.verdict; hud();
+    f.className = "vfb ok"; f.innerHTML = ICON("shield-check") + "1차 판별 일치! 이제 증거를 수집해요. (+" + PTS.verdict + ")";
+    toast("ok", "shield-check", "1차 판별 일치", "+" + PTS.verdict + "점 · 증거 수집을 시작해요");
+    S.timer = setTimeout(startEvidence, 1300);
+  } else {
+    f.className = "vfb bad"; f.innerHTML = ICON("shield-alert") + "1차 판별이 달라요. 사건 보고서를 확인해요.";
+    toast("warn", "shield-alert", "1차 판별 불일치", "해설에서 단서를 확인해요");
+    S.timer = setTimeout(resolve, 1400);
+  }
+}
+
+/* C. 증거 수집 */
+function startEvidence(){
+  const q = curQ(), n = cluesOf(q).length;
+  S.cur.n = n; S.cur.sel = new Set(); S.cur.evDone = false;
+  renderCase("select");
+  const cw = $("caseWrap"); cw.classList.remove("scan"); void cw.offsetWidth; cw.classList.add("scan");
+  $("evGuide").textContent = (q.answer
+    ? "이 자료를 믿을 수 있게 하는 근거 문구를 직접 골라 보세요. "
+    : "이 자료에서 의심스러운 문구를 직접 골라 보세요. ") + "핵심 증거는 " + n + "개이고, " + n + "개까지 선택할 수 있어요.";
+  $("slots").innerHTML = Array.from({ length:n }, () => `<span class="slot">${ICON("check")}</span>`).join("");
+  $("evMeter").hidden = false; $("evResult").hidden = true;
+  $("evSubmit").disabled = true;
+  updateEv();
+  setPhase("C"); scrollTo_($("evArea"));
+}
+function updateEv(){
+  const k = S.cur.sel.size, n = S.cur.n;
+  $("evCount").textContent = k + " / " + n;
+  [...$("slots").children].forEach((s, i) => s.classList.toggle("on", i < k));
+  $("evSubmit").disabled = (k === 0);
+}
+function toggleItem(it){
+  if (S.cur.evDone) return;
+  const el = it.el, sel = S.cur.sel;
+  if (sel.has(it.i)){ sel.delete(it.i); el.setAttribute("aria-pressed", "false"); }
+  else {
+    if (sel.size >= S.cur.n){
+      el.classList.remove("deny"); void el.offsetWidth; el.classList.add("deny");
+      toast("info", "scan", "증거는 " + S.cur.n + "개까지만 선택할 수 있어요", "다른 문구의 선택을 풀고 다시 골라 보세요.");
+      return;
+    }
+    sel.add(it.i); el.setAttribute("aria-pressed", "true");
+    el.classList.remove("pulse"); void el.offsetWidth; el.classList.add("pulse");
+    setTimeout(() => el.classList.remove("pulse"), 700);
+  }
+  updateEv();
+}
+function submitEvidence(){
+  if (S.cur.evDone || S.cur.sel.size === 0) return;
+  S.cur.evDone = true;
+  const items = S.cur.items, sel = S.cur.sel, n = S.cur.n;
+  const hits = items.filter(x => x.c && sel.has(x.i));
+  const wrongs = items.filter(x => !x.c && sel.has(x.i));
+  const missed = items.filter(x => x.c && !sel.has(x.i));
+  S.cur.evHit = hits.length; S.cur.hits = hits; S.cur.missed = missed; S.cur.wrongPicks = wrongs;
+  S.cur.evPts = Math.round(PTS.evidence * hits.length / n);
+  S.score += S.cur.evPts; hud();
+  renderCase("reveal");
+  $("evMeter").hidden = true;
+  $("evResTitle").textContent = "증거 " + hits.length + "개 확보 (+" + S.cur.evPts + "점)";
+  const tray = $("evTray"); tray.innerHTML = "";
+  hits.forEach((h, i) => { const c = document.createElement("span"); c.className = "chip ok"; c.style.setProperty("--i", i); c.innerHTML = ICON("check"); c.append(h.t); tray.appendChild(c); });
+  missed.forEach((h, i) => { const c = document.createElement("span"); c.className = "chip miss"; c.style.setProperty("--i", hits.length + i); c.innerHTML = ICON("search"); c.append("놓친 증거: " + h.t); tray.appendChild(c); });
+  wrongs.forEach((h, i) => { const c = document.createElement("span"); c.className = "chip warn"; c.style.setProperty("--i", hits.length + missed.length + i); c.innerHTML = ICON("x"); c.append("증거 아님: " + h.t); tray.appendChild(c); });
+  $("evResult").hidden = false;
+  if (hits.length === n) toast("ok", "fingerprint", "증거 확보 완료!", "핵심 증거 " + n + "개를 모두 찾았어요 (+" + S.cur.evPts + ")");
+  else if (hits.length > 0) toast("ok", "fingerprint", "증거 " + hits.length + "개 확보", "+" + S.cur.evPts + "점 · 놓친 증거를 확인해 보세요");
+  else toast("warn", "shield-alert", "확보한 증거가 없어요", "해설에서 단서를 확인해요");
+  scrollTo_($("evResult"));
+}
+
+/* D. 근거 분석 */
+function startReason(){
+  const q = curQ();
+  const opts = shuffle([{ t:q.reason, c:true }, { t:q.wrong[0], c:false }, { t:q.wrong[1], c:false }]);
+  const list = $("reasonList"); list.innerHTML = "";
+  opts.forEach((o, i) => {
+    const b = document.createElement("button");
+    b.className = "reason"; b.dataset.c = o.c ? "1" : "0";
+    const idx = document.createElement("span"); idx.className = "idx"; idx.textContent = i + 1;
+    const tx = document.createElement("span"); tx.textContent = o.t;
+    b.append(idx, tx); b.onclick = () => pickReason(b, o.c);
+    list.appendChild(b);
+  });
+  S.cur.reasonLocked = false;
+  setPhase("D"); scrollTo_($("reasonArea"));
+}
+function pickReason(btn, correct){
+  if (S.cur.reasonLocked) return; S.cur.reasonLocked = true;
+  [...$("reasonList").children].forEach(b => { b.disabled = true; if (b.dataset.c === "1") b.classList.add("right"); });
+  if (!correct) btn.classList.add("miss");
+  S.cur.reasonOK = correct;
+  if (correct){ S.cur.reasonPts = PTS.reason; S.score += PTS.reason; hud(); toast("ok", "chart", "근거 분석 정확!", "+" + PTS.reason + "점"); }
+  else toast("warn", "shield-alert", "근거 분석이 달라요", "해설에서 까닭을 확인해요");
+  S.timer = setTimeout(resolve, 1300);
+}
+
+/* E. 사건 해결 */
+function resolve(){
+  const q = curQ(), c = S.cur;
+  const vOK = c.verdictOK, rOK = vOK && c.reasonOK;
+  const n = cluesOf(q).length;
+  const evPerfect = vOK && c.evHit === n;
+  const perfect = vOK && rOK;                       // 기존 규칙: 판별 + 근거가 맞으면 완벽 해결
+  if (perfect){ S.combo++; S.perfect++; if (S.combo >= 3){ c.comboBonus = PTS.combo; S.score += PTS.combo; } }
+  else { S.combo = 0; if (!S.wrongIdx.includes(q.n)) S.wrongIdx.push(q.n); }
+  c.stars = vOK ? 1 + (evPerfect ? 1 : 0) + (rOK ? 1 : 0) : 0;
+  const gained = (vOK ? PTS.verdict : 0) + c.evPts + c.reasonPts + c.comboBonus;
+  const clues = cluesOf(q);
+  const hitTexts = vOK && c.hits ? c.hits.map(h => h.t) : [];
+  const missedTexts = clues.map(x => x.t).filter(t => !hitTexts.includes(t));
+  S.log.push({ n:q.n, title:q.title, ok:vOK, stars:c.stars, hits:hitTexts, missed:missedTexts, reasonOK:vOK ? rOK : null, pts:gained });
+  hud(); persist(S.idx + 1, false);
+
+  // 사건 파일에 단서 공개
+  if (!vOK){ S.cur.sel = new Set(); renderCase("clues"); } else renderCase("reveal");
+  setPhase("E", !vOK);
+
+  const starsHtml = [0, 1, 2].map(i => `<span class="star ${i < c.stars ? "on" : ""}" style="--i:${i}">${ICON("star")}</span>`).join("");
+  const wrongPicks = (vOK && c.wrongPicks) ? c.wrongPicks : [];
+  const clueRows = clues.map(cl => {
+    const got = hitTexts.includes(cl.t);
+    return `<div class="evi"><span class="chip ${got ? "ok" : "miss"}">${ICON(got ? "check" : "search")}${got ? "확보" : "놓침"}</span><div><b></b><small></small></div></div>`;
+  }).join("") + wrongPicks.map(() => `<div class="evi"><span class="chip warn">${ICON("x")}증거 아님</span><div><b></b><small></small></div></div>`).join("");
+  const res = $("resArea");
+  res.className = "panel res phase-in" + (c.stars === 3 ? " clear" : "");
+  res.innerHTML = `
+    <div class="res-top">
+      <div class="stampwrap"><div class="stamp ${vOK ? "" : "bad"}">${vOK ? "사건 해결" : "재수사<br>필요"}<small>${vOK ? "CASE SOLVED" : "RE-INVESTIGATE"}</small></div></div>
+      <div class="res-info">
+        <div class="h-label">사건 해결 보고 · CASE ${String(q.n + 1).padStart(2, "0")}</div>
+        <h3></h3>
+        <div class="verdict-line"></div>
+        <div class="stars" aria-label="별점 ${c.stars}개">${starsHtml}</div>
+        <p class="evalt">${EVAL[c.stars]}</p>
+      </div>
+    </div>
+    <div class="bd" id="bd">
+      <div><span>1차 판별</span><span class="pts ${vOK ? "" : "zero"}">+${vOK ? PTS.verdict : 0}</span></div>
+      <div><span>증거 수집 (${vOK ? c.evHit : 0} / ${n})</span><span class="pts ${c.evPts ? "" : "zero"}">+${c.evPts}</span></div>
+      <div><span>근거 분석</span><span class="pts ${c.reasonPts ? "" : "zero"}">+${c.reasonPts}</span></div>
+      ${c.comboBonus ? `<div><span>연속 성공 보너스 (${S.combo}연속)</span><span class="pts">+${c.comboBonus}</span></div>` : ""}
+      <div class="tot"><span>이번 사건 획득 점수</span><span class="pts" id="gainV">+0</span></div>
+    </div>
+    <div class="accnote">${ICON("star")}<span>풀이 속도는 점수에 영향을 주지 않아요. 정확한 증거와 근거를 찾을수록 더 많은 점수를 받아요.</span></div>
+    <div class="sec-t">${ICON("fingerprint")}증거 분석</div>
+    <div class="evl" id="evl">${clueRows}</div>
+    <div class="sec-t">${ICON("chart")}판단 근거와 해설</div>
+    <div class="why"><p class="rr">${ICON("check")}<span id="whyR"></span></p><p id="whyT"></p><div class="tags" id="whyTags"></div></div>
+    <div class="actions"><button class="btn big" id="nextBtn"></button></div>`;
+  res.querySelector("h3").textContent = q.title;
+  res.querySelector(".verdict-line").textContent = "정답: " + (q.answer ? "이 자료는 믿을 수 있어요 (○)" : "이 자료는 믿기 어려워요 (×)");
+  [...res.querySelectorAll("#evl .evi")].forEach((row, i) => {
+    const src = i < clues.length ? clues[i] : wrongPicks[i - clues.length];
+    row.querySelector("b").textContent = "“" + src.t + "”"; row.querySelector("small").textContent = src.n;
+  });
+  $("whyR").textContent = q.reason; $("whyT").textContent = q.why;
+  $("whyTags").innerHTML = q.tags.map(t => `<span class="tag">${ICON(TAG_ICON[t] || "search")}${t}</span>`).join("");
+  const last = (S.idx + 1 >= S.list.length);
+  $("nextBtn").innerHTML = (last ? "최종 보고 열기" : "다음 사건으로") + ICON("arrow");
+  $("nextBtn").onclick = () => { S.idx++; (S.idx >= S.list.length) ? end() : loadQ(); };
+  countUp($("gainV"), gained, v => "+" + v);
+  if (c.stars === 3){ toast("rank", "award", "완벽한 수사!", "별 3개를 획득했어요"); setTimeout(() => burst(res.querySelector(".stampwrap")), 350); }
+  else if (vOK) setTimeout(() => burst(res.querySelector(".stampwrap")), 350);
+  scrollTo_(res);
+}
+
+/* ---------- 결과 ---------- */
+function end(){
+  clearTimeout(S.timer);
+  S.idx = S.list.length; hud();
+  const total = S.list.length, p = S.perfect;
+  const k = rankIdxOf(S.score, total), R = RANKS[k];
+  const stars = S.log.reduce((a, e) => a + e.stars, 0);
+  $("resIcon").innerHTML = `<svg class="hex" viewBox="0 0 100 100"><polygon points="50,4 91,27 91,73 50,96 9,73 9,27"/></svg>${ICON(R.icon)}`;
+  $("resIcon").classList.remove("pop"); void $("resIcon").offsetWidth; $("resIcon").classList.add("pop");
+  $("rankV").textContent = R.name;
+  $("finalScore").innerHTML = `<span id="fs">0</span>점<small>/ ${maxScore(total)}</small>`;
+  $("resWho").textContent = (S.name ? S.name + " 탐정 · " : "") + (S.retry ? "복습 " : "") + total + "문제 중 " + p + "문제 완벽 해결 · 별 " + stars + "개";
+  $("resSummary").textContent = S.wrongIdx.length
+    ? "다시 살펴볼 문제가 " + S.wrongIdx.length + "개 있어요. 틀린 문제를 다시 풀어 볼까요?"
+    : "모든 문제를 완벽하게 해결했어요! 수행평가도 자신 있게 해결해 봐요.";
+  $("sumBox").classList.toggle("warn", S.wrongIdx.length > 0);
+  $("retryWrong").hidden = S.wrongIdx.length === 0;
+  $("caseGrid").innerHTML = S.log.map(e => `<div class="cg"><span class="cn">CASE ${String(e.n + 1).padStart(2, "0")}</span><span>${""}</span><span class="mini-stars">${[0,1,2].map(i => `<span class="${i < e.stars ? "on" : ""}">${ICON("star")}</span>`).join("")}</span></div>`).join("");
+  [...$("caseGrid").children].forEach((row, i) => { row.children[1].textContent = S.log[i].title; });
+  if (!BEST || S.score > BEST.score) BEST = { score:S.score, rank:R.name, max:maxScore(total) };
+  persist(S.list.length, true);
+  show("result");
+  countUp($("fs"), S.score, v => String(v));
+  setTimeout(() => burst($("resIcon")), 500);
+  if (k === RANKS.length - 1) toast("rank", "award", "최종 탐정 자격 획득!", "신뢰성 대탐정이 되었어요");
+}
+
+/* ---------- 수사 기록장 ---------- */
+function renderLog(){
+  const log = S.log || [];
+  $("drCases").textContent = log.length;
+  $("drEv").textContent = log.reduce((a, e) => a + e.hits.length, 0);
+  $("drStars").textContent = log.reduce((a, e) => a + e.stars, 0);
+  const body = $("drBody"); body.innerHTML = "";
+  if (!log.length){ body.innerHTML = `<div class="dr-empty">${ICON("book")}<br>아직 해결한 사건이 없어요.<br>사건을 해결하면 확보한 증거가 이곳에 기록돼요.</div>`; return; }
+  log.forEach(e => {
+    const d = document.createElement("div"); d.className = "entry";
+    d.innerHTML = `<div class="entry-h"><span class="cn">CASE ${String(e.n + 1).padStart(2, "0")}</span><span class="chip ${e.ok ? "ok" : "warn"}">${e.ok ? "판별 성공" : "판별 오류"}</span><span class="mini-stars">${[0,1,2].map(i => `<span class="${i < e.stars ? "on" : ""}">${ICON("star")}</span>`).join("")}</span></div>
+      <h4></h4><div class="grp">확보한 증거</div><div class="tray" data-k="h"></div><div class="grp">놓친 증거</div><div class="tray" data-k="m"></div>
+      <div class="grp">근거 분석: ${e.reasonOK === null ? "해당 없음" : (e.reasonOK ? "정확" : "다시 확인")} · 획득 ${e.pts}점</div>`;
+    d.querySelector("h4").textContent = e.title;
+    const fill = (k, arr, cls, ic, none) => {
+      const t = d.querySelector(`[data-k="${k}"]`);
+      if (!arr.length){ t.innerHTML = `<span class="chip">${none}</span>`; return; }
+      arr.forEach(x => { const c = document.createElement("span"); c.className = "chip " + cls; c.innerHTML = ICON(ic); c.append(x); t.appendChild(c); });
+    };
+    fill("h", e.hits, "ok", "check", "없음");
+    fill("m", e.missed, "miss", "search", "없음");
+    body.appendChild(d);
+  });
+}
+function openLog(){ renderLog(); $("drawer").classList.add("open"); $("scrim").classList.add("open"); $("drawer").setAttribute("aria-hidden", "false"); $("drClose").focus(); }
+function closeLog(){ $("drawer").classList.remove("open"); $("scrim").classList.remove("open"); $("drawer").setAttribute("aria-hidden", "true"); }
+$("logBtn").onclick = openLog; $("openLog2").onclick = openLog; $("drClose").onclick = closeLog; $("scrim").onclick = closeLog;
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeLog(); });
+
+/* ---------- 시작 / 재시작 ---------- */
+const all = () => QUESTIONS.map((q, i) => ({ ...q, n:i }));
+function newGame(list, retry){
+  const nm = S.name; fresh(list, retry); S.name = nm;
+  persist(0, false); show("game"); loadQ();
+}
+$("go").onclick = () => { S = { ...S, name:$("who").value.trim() }; newGame(all(), false); };
+$("again").onclick = () => newGame(all(), false);
+$("retryWrong").onclick = () => { const ids = S.wrongIdx.slice(); newGame(ids.map(i => ({ ...QUESTIONS[i], n:i })), true); };
+$("startCase").onclick = startCase;
+$("vYes").onclick = () => verdict(true);
+$("vNo").onclick = () => verdict(false);
+$("evSubmit").onclick = submitEvidence;
+$("evNext").onclick = startReason;
+
+function initStart(){
+  const sv = readSave();
+  if (sv && sv.best) BEST = sv.best;
+  if (sv && sv.name) $("who").value = sv.name;
+  if (BEST){ $("best").hidden = false; $("bestText").textContent = "최고 기록 " + BEST.score + "점 · " + BEST.rank; }
+  if (sv && !sv.done && sv.ids && sv.idx > 0 && sv.idx < sv.ids.length){
+    $("resume").hidden = false;
+    $("resumeTitle").textContent = "진행 중인 수사가 있어요";
+    $("resumeSub").textContent = (sv.retry ? "복습 " : "") + "CASE " + (sv.idx + 1) + " / " + sv.ids.length + " · 현재 " + sv.score + "점";
+    $("resumeBtn").onclick = () => {
+      fresh(sv.ids.map(i => ({ ...QUESTIONS[i], n:i })), !!sv.retry);
+      Object.assign(S, { name:sv.name || "", idx:sv.idx, score:sv.score, combo:sv.combo, perfect:sv.perfect, wrongIdx:sv.wrongIdx || [], log:sv.log || [], rankIdx:sv.rankIdx || 0 });
+      show("game"); loadQ();
+    };
+  }
+  $("logCount").textContent = "0";
+}
+$("caseTotal").textContent = QUESTIONS.length;
+initStart();
+</script>
+</body>
+</html>
